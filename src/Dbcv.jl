@@ -279,7 +279,6 @@ function dbcv(X::AbstractArray{<:Number},
             internal_core_distances_per_cluster[cluster_a],
             internal_core_distances_per_cluster[cluster_b])
 
-                min_dspcs[cluster_a],
         min_dspcs[cluster_a] = min(min_dspcs[cluster_a], result)
         min_dspcs[cluster_b] = min(min_dspcs[cluster_b], result)
     end
