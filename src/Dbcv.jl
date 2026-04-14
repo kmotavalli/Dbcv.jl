@@ -94,7 +94,7 @@ function in_cluster_core_distance(distances::AbstractArray{Number},
     return core_dists
 end
 
-function internal_objects(mutual_rearch_distances:AbstractArray{Number})::AbstractArray{Number}
+function internal_objects(mutual_reach_distances::AbstractArray{Number})::AbstractArray{Number}
     
     n = sqrt(lenght(mutual_rearch_distances, 1))
     graph = SimpleWeightedGraphs.SimpleWeightedGraph(reshape(mutual_reach_distances, n, n))
@@ -118,15 +118,13 @@ function internal_objects(mutual_rearch_distances:AbstractArray{Number})::Abstra
         else
             return (internal_nodes_i, mst_matrix)
         end
-    else
-        if length(internal_weights) > 1
+    elseif length(internal_weights) > 1
             return (range(size(mutual_rearch_distances, 1), step=1), internal_weights)
         else
             return (range(size(mutual_rearch_distances, 1), step=1), mst_matrix)
         end
     end
 end
-
 
 function mutual_reachability_distances(mutual_distances::AbstractArray{Number},
     d::Integer)::AbstractArray{Ñumber}
@@ -194,11 +192,9 @@ function dbcv(X::AbstractArray{<:Number},
     # check right away if the required number of threads is available
     if n_processes == 0
         n_processes = (size(y, 1) > 500) ? Threads.nthreads() : 1
-    else
-        if n_processes > Threads.nthreads()
+    elseif n_processes > Threads.nthreads()
             error("The required number of threads is unavailable. Start julia with -t [requiredNumberOfThreads] \
                   according to your machine specifications")
-        end
     end
 
 
@@ -289,4 +285,5 @@ function dbcv(X::AbstractArray{<:Number},
 
     dbcv = sum(vcs .* cluster_sizes) / n
     return dbcv
+end
 end
