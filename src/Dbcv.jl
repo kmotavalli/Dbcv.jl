@@ -178,15 +178,15 @@ module Dbcv
     end
 
     function dbcv(X::AbstractArray{<:Number},
-        y::AbstractVector{<:AbstractInteger}; #do we want it to be able to be an abstract array?
+        y::AbstractVector{<:Integer}; #do we want it to be able to be an abstract array?
         metric::AbstractString = "squeclidean",
-        noise_id::AbstractInteger = -1,
+        noise_id::Integer = -1,
         check_duplicates::Bool = true,
-        n_processes::AbstractInteger = 0, #0 = auto
+        n_processes::Integer = 0, #0 = auto
         sep_threshold = 1e-9,
         #enable_dynamic_precision::Bool = false,
         #enable_dynamic_precision ignored, that's the default in Julia!
-        bits_ot_precision::AbstractInteger = 512, #approfondire se costruire tipo dato o usare fixed prec aritm.
+        bits_ot_precision::Integer = 512, #approfondire se costruire tipo dato o usare fixed prec aritm.
     )::AbstractFloat
 
         # check right away if the required number of threads is available
@@ -250,7 +250,7 @@ module Dbcv
         #scegliere implementazione migliore multithreading
         #e divisione in sottomatrici/sottoproblemi
 
-        @Threads for subcls_indexes in eachrow(cluster_indexes)
+        Threads.@threads for subcls_indexes in eachrow(cluster_indexes)
             cluster_id::Integer = Threads.threadid()
             dscs[cluster_id],
             internal_core_distances_per_cluster[cluster_id],
@@ -261,7 +261,7 @@ module Dbcv
         number_cluster_pairs::Integer = fld((num_clusters*(num_clusters - 1)), 2)
 
         if num_cluster_pairs > 0
-        @Threads for pair in Combinatorics.combinations(cluster_ids, 2)
+        Threads.@threads for pair in Combinatorics.combinations(cluster_ids, 2)
             cluster_a::Integer = pair[1]
             cluster_b::Integer = pair[2]
             result = density_separation(cluster_a,
