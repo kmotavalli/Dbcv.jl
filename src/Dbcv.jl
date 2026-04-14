@@ -121,10 +121,10 @@ module Dbcv
             end
         elseif length(internal_weights) > 1
                 return (range(size(mutual_reach_distances, 1), step=1), internal_weights)
-            else
+        else
                 return (range(size(mutual_reach_distances, 1), step=1), mst_matrix)
-            end
         end
+
     end
 
     function mutual_reachability_distances(mutual_distances::AbstractArray{Number},
@@ -274,10 +274,11 @@ module Dbcv
         # verificare se necessario equivalente di np.nan_to_num(min_dspcs, copy=False, posinf=1e12)
 
         base::AbstractFloat = sep_threshold/1e-3
-        vcs::AbstractArray = ( min_dspcs .- dscs ) ./ (base .+ max.(min_dspcs, dscs))
+        vcs::AbstractArray = (min_dspcs .- dscs) ./ (base .+ max.(min_dspcs, dscs))
 
         # verificare se necessario equivalente di np.nan_to_num(vcs, copy=False, nan=0.0)
 
         dbcv = sum(vcs .* cluster_sizes) / n
         return dbcv
     end
+end
