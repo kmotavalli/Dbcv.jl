@@ -9,7 +9,7 @@ module Dbcv
         cluster_ids = unique(y)
         cluster_sizes = [count(==(id), y) for id in cluster_ids]
         non_noise_ids::AbstractArray{Bool} = similar(y, Bool)
-        map(_ -> true, non_noise_ids)
+        non_noise_ids .= true
         for i in eachindex(y)
             pos = findfirst(id -> id == y[i], cluster_ids)
             if cluster_sizes[pos] == 1
@@ -34,7 +34,7 @@ module Dbcv
 
         for i in 1:size(X, 1)
             _, dists = NearestNeighbors.nn(knn_tree, X[i,:])
-            if any(dist -> dist < threshold)
+            if any(dist -> dist < threshold, dists)
                 throw(FieldError("Duplicate samples have been found in X. Try changing sep_threshold (def e^-9)"))
             end
         end
@@ -50,7 +50,7 @@ module Dbcv
         tot_jump = 1
         cur_jump = 1
         for dim in 1:(ndims(X) - 1)
-            cur_hump *= dims[dim]
+            cur_jump *= dims[dim]
             tot_jump += cur_jump
         end
 
@@ -96,11 +96,12 @@ module Dbcv
 
     function internal_objects(mutual_reach_distances::AbstractArray{Number})::AbstractArray{Number}
         
-        n = sqrt(lenght(mutual_rearch_distances, 1))
+        n = sqrt(length(mutual_reach_distances, 1))
         graph = SimpleWeightedGraphs.SimpleWeightedGraph(reshape(mutual_reach_distances, n, n))
 
-        mst_edges = Graphs.kruskal_mst(graph)
-        mst_matrix = map(_ -> 0, similar(mutual_reach_distances))
+        mst_edges = transpose(Graphs.kruskal_mst(graph))
+        mst_matrix = deepcopy(mutual_reach_distances)
+
 
         for edge in mst_edges
             src, dest, w = Graphs.src(edge), Graphs.dst(edge), Graphs.weight(edge)
@@ -109,7 +110,7 @@ module Dbcv
         end
 
         internal_nodes_i = findall(vec(count(>(0.0), mst_matrix, dims=1)) .> 1)
-        internal_weights = get_subarray(internal_nodes, internal_nodes_i)
+        internal_weights = get_subarray(mst_matrix, internal_nodes_i)
 
 
         if !isempty(internal_nodes_i)
@@ -119,9 +120,9 @@ module Dbcv
                 return (internal_nodes_i, mst_matrix)
             end
         elseif length(internal_weights) > 1
-                return (range(size(mutual_rearch_distances, 1), step=1), internal_weights)
+                return (range(size(mutual_reach_distances, 1), step=1), internal_weights)
             else
-                return (range(size(mutual_rearch_distances, 1), step=1), mst_matrix)
+                return (range(size(mutual_reach_distances, 1), step=1), mst_matrix)
             end
         end
     end
