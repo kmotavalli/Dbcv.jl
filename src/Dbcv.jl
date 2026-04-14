@@ -182,21 +182,11 @@ module Dbcv
         metric::AbstractString = "squeclidean",
         noise_id::Integer = -1,
         check_duplicates::Bool = true,
-        n_processes::Integer = 0, #0 = auto
         sep_threshold = 1e-9,
         #enable_dynamic_precision::Bool = false,
         #enable_dynamic_precision ignored, that's the default in Julia!
         bits_ot_precision::Integer = 512, #approfondire se costruire tipo dato o usare fixed prec aritm.
     )::AbstractFloat
-
-        # check right away if the required number of threads is available
-        if n_processes == 0
-            n_processes = (size(y, 1) > 500) ? Threads.nthreads() : 1
-        elseif n_processes > Threads.nthreads()
-                error("The required number of threads is unavailable. Start julia with -t [requiredNumberOfThreads] \
-                    according to your machine specifications")
-        end
-
 
         n, d = size(X)
 
