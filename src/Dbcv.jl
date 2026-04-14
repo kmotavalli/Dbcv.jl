@@ -179,9 +179,6 @@ function density_separation(cluster_i::Integer,
     return density_sep_btwn_clusters
 end
 
-
-    
-
 function dbcv(X::AbstractArray{<:Number},
     y::AbstractVector{<:AbstractInteger}; #do we want it to be able to be an abstract array?
     metric::AbstractString = "squeclidean",
@@ -274,8 +271,6 @@ function dbcv(X::AbstractArray{<:Number},
     @Threads for pair in Combinatorics.combinations(cluster_ids, 2)
         cluster_a::Integer = pair[1]
         cluster_b::Integer = pair[2]
-        min_dspcs[cluster_a],
-        min_dspcs[cluster_b] =
         result = density_separation(cluster_a,
             cluster_b,
             get_subarray(distances,
