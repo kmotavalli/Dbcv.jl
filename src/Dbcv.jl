@@ -128,7 +128,7 @@ module Dbcv
     end
 
     function mutual_reachability_distances(mutual_distances::AbstractArray{Number},
-        d::Integer)::AbstractArray{Ñumber}
+        d::Integer)::AbstractArray{Number}
 
         core_distances = in_cluster_core_distance(mutual_distances, d)
         cd_appo = transpose(core_distances)
@@ -198,12 +198,12 @@ module Dbcv
         #clusters containing a single element can have that element regarded as noise.
         #reassign all noise to the noise_id cluster, by default id -1
 
-        bool_keep_matrix = convert_singleton_clusters_to_noise!(y, noise_id=noise_id)
+        bool_keep_matrix = convert_singleton_clusters_to_noise!(y, noise_id)
         
         #filtering the AbstractArray does flattern it
         y = y[bool_keep_matrix]
         #keep whole colums, on true, bool_keep_matrix is not a flattened index for X!
-        X = X[bool_keep_matix, :]
+        X = X[bool_keep_matrix, :]
 
         if isempty(y)
             return 0.0
