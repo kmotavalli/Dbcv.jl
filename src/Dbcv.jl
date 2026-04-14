@@ -1,6 +1,6 @@
 module Dbcv
 
-import Graphs, SimpleWeightedGraphs, NearestNeighbors
+import Graphs, SimpleWeightedGraphs, NearestNeighbors, Combinatorics
 using Base.Threads
 
 export dbcv
@@ -176,7 +176,7 @@ function density_separation(cluster_i::Integer,
         density_sep_btwn_clusters = Inf
     end
 
-    return (cluster_i, cluster_j, density_sep_btwn_clusters)
+    return density_sep_btwn_clusters
 end
 
 
@@ -231,6 +231,7 @@ function dbcv(X::AbstractArray{<:Number},
     # ma saranno i miei nuovi identificatori di posizione per i cluster, tolto il rumore
 
     cluster_ids = unique(y)
+    num_clusters::Integer = length(cluster_ids)
     cluster_sizes =  [count(==(id), y) for id in cluster_ids]
 
     if check_duplicates
@@ -249,15 +250,54 @@ function dbcv(X::AbstractArray{<:Number},
     internal_objects_per_cluster::Dict = Dict{Integer, AbstractArray{Integer}}
     # insert with internal_objects_per_cls[key] = newvalue
 
-    internal_core_distances_per_cluster::Dict = Dict{Integer, AbstractArray{Ñumber}}
+    internal_core_distances_per_cluster::Dict = Dict{Integer, AbstractArray{Number}}
 
     cluster_indexes = [findall(y .== cls_id) for cls_id in cluster_ids]
 
     #scegliere implementazione migliore multithreading
     #e divisione in sottomatrici/sottoproblemi
 
-    @Threads for cls_index in eachrow(cluster_indexes)
-        density_sparseness(cls_index, get_subarray(distances,cls_index), d)
+    cluster_id::Integer = 1
+    @Threads for subcls_indexes in eachrow(cluster_indexes)
+
+        dscs[cluster_id],
+        internal_core_distances_per_cluster[cluster_id],
+        internal_objects_per_cluster[cluster_id] =
+        density_sparseness(subcls_indexes, get_subarray(distances,subcls_indexes), d)
+
+        cluster_id += 1
+    end
+
+    number_cluster_pairs::Integer = fld((num_clusters*(num_clusters - 1)), 2)
+
+    if num_cluster_pairs > 0
+    @Threads for pair in Combinatorics.combinations(cluster_ids, 2)
+        cluster_a::Integer = pair[1]
+        cluster_b::Integer = pair[2]
+        min_dspcs[cluster_a],
+        min_dspcs[cluster_b] =
+        result = density_separation(cluster_a,
+            cluster_b,
+            get_subarray(distances,
+                internal_objects_per_cluster[cluster_a],
+                internal_objects_per_cluster[cluster_b]),
+            internal_core_distances_per_cluster[cluster_a],
+            internal_core_distances_per_cluster[cluster_b])
+
+                min_dspcs[cluster_a],
+        min_dspcs[cluster_a] = min(min_dspcs[cluster_a], result)
+        min_dspcs[cluster_b] = min(min_dspcs[cluster_b], result)
+    end
+
+    # verificare se necessario equivalente di np.nan_to_num(min_dspcs, copy=False, posinf=1e12)
+
+    base::AbstractFloat = sep_threshold/1e-3
+    vcs::AbstractArray = ( min_dspcs .- dscs ) ./ (base .+ max.(min_dspcs, dscs))
+
+    # verificare se necessario equivalente di np.nan_to_num(vcs, copy=False, nan=0.0)
+
+    dbcv = sum(vcs .* cluster_sizes) / n
+    return dbcv
 
 
 
