@@ -35,7 +35,7 @@ function check_duplicated_samples(X::AbstractArray{Number}; threshold::Real = 1e
     for i in 1:size(X, 1)
         _, dists = NearestNeighbors.nn(knn_tree, X[i,:])
         if any(dist -> dist < threshold)
-            Throw(FieldError("Duplicate samples have been found in X. Try changing sep_threshold (def e^-9)"))
+            throw(FieldError("Duplicate samples have been found in X. Try changing sep_threshold (def e^-9)"))
         end
     end
 end
@@ -158,7 +158,7 @@ function density_sparseness(cluster_inds::AbstractArray{Integer},
     internal_core_distances = core_distances[internal_node_inds]
     internal_node_inds = cluster_inds[internal_node_inds]
 
-    return (cluster_density_sparseness, internal_core_distances, internal_node_inds)
+    return (cluster_id,c luster_density_sparseness, internal_core_distances, internal_node_inds)
 end
 
 function density_separation(cluster_i::Integer,
@@ -205,7 +205,7 @@ function dbcv(X::AbstractArray{<:Number},
     n, d = size(X)
 
     if n != size(y, 1)
-        Throw(ArgumentError("Mismatch in input data (X) lenght and their clustering id assignments (y)"))
+        throw(ArgumentError("Mismatch in input data (X) lenght and their clustering id assignments (y)"))
     end
 
     #clusters containing a single element can have that element regarded as noise.
@@ -254,15 +254,12 @@ function dbcv(X::AbstractArray{<:Number},
     #scegliere implementazione migliore multithreading
     #e divisione in sottomatrici/sottoproblemi
 
-    cluster_id::Integer = 1
     @Threads for subcls_indexes in eachrow(cluster_indexes)
-
+        cluster_id::Integer = Threads.threadid()
         dscs[cluster_id],
         internal_core_distances_per_cluster[cluster_id],
         internal_objects_per_cluster[cluster_id] =
         density_sparseness(subcls_indexes, get_subarray(distances,subcls_indexes), d)
-
-        cluster_id += 1
     end
 
     number_cluster_pairs::Integer = fld((num_clusters*(num_clusters - 1)), 2)
