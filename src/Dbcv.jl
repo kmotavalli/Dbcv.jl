@@ -241,7 +241,7 @@ module Dbcv
         #e divisione in sottomatrici/sottoproblemi
 
         Threads.@threads for cluster_id in 1:length(cluster_ids)
-            subcls_indexes::AbstractArray{Integer} = cluster_indexes[cluster_id]
+            subcls_indexes::AbstractArray{Integer} = view(cluster_indexes, cluster_id)
             dscs[cluster_id],
             internal_core_distances_per_cluster[cluster_id],
             internal_objects_per_cluster[cluster_id] =
