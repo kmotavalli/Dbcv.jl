@@ -69,9 +69,9 @@ function pair_to_pair_distances(X::AbstractArray{Number};
     
     if metric == "sqeuclidean"
         distances = Distances.pairwise(Distances.SqEuclidean(tolerance), X, X, dims=1)
-    else if metric == "euclidean"
+    elseif metric == "euclidean"
         distances = Distances.pairwise(Distances.Euclidean(tolerance), X, X, dims=1)
-    else if metric == "manhattan" | metric == "cityblock"
+    elseif metric == "manhattan" | metric == "cityblock"
         distances = Distances.pairwise(Distances.Cityblock(), X, X, dims=1)
     else
         error("metric not yet implemented")
@@ -293,3 +293,4 @@ function dbcv(X::AbstractArray{<:Number},
 
     dbcv = sum(vcs .* cluster_sizes) / n
     return dbcv
+end
