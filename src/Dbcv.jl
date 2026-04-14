@@ -109,7 +109,7 @@ function internal_objects(mutual_rearch_distances:AbstractArray{Number})::Abstra
     end
 
     internal_nodes_i = findall(vec(count(>(0.0), mst_matrix, dims=1)) .> 1)
-    internal_weights = mst_matrix[internal_nodes, internal_nodes_i]
+    internal_weights = get_subarray(internal_nodes, internal_nodes_i)
 
 
     if !isempty(internal_nodes_i)
@@ -137,6 +137,15 @@ function mutual_reachability_distances(mutual_distances::AbstractArray{Number},
     return (core_distances, mrd)
 end
 
+function get_subarray(arr, inds_a, inds_b)
+    if isnothing(inds_a)
+        return arr
+    end
+
+    actual_inds_b = isnothing(inds_b) ? inds_a : inds_b
+
+    return transpose(arr[inds_a, actual_inds_b])
+end
 
 function density_sparseness(cluster_inds::AbstractArray{Integer},
     distances::AbstractArray{Number},
@@ -247,9 +256,8 @@ function dbcv(X::AbstractArray{<:Number},
     #scegliere implementazione migliore multithreading
     #e divisione in sottomatrici/sottoproblemi
 
-    segm_size::Integer = ceil(Integer, size(distances, 1)/n_processes)
-
-    @Threads for i in 1:
+    @Threads for cls_index in eachrow(cluster_indexes)
+        density_sparseness(cls_index, get_subarray(distances,cls_index), d)
 
 
 
