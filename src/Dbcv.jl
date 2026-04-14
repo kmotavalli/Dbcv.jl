@@ -240,8 +240,8 @@ module Dbcv
         #scegliere implementazione migliore multithreading
         #e divisione in sottomatrici/sottoproblemi
 
-        Threads.@threads for subcls_indexes in eachrow(cluster_indexes)
-            cluster_id::Integer = Threads.threadid()
+        Threads.@threads for cluster_id in 1:length(cluster_ids)
+            subcls_indexes::AbstractArray{Integer} = cluster_indexes[cluster_id]
             dscs[cluster_id],
             internal_core_distances_per_cluster[cluster_id],
             internal_objects_per_cluster[cluster_id] =
