@@ -298,8 +298,3 @@ function dbcv(X::AbstractArray{<:Number},
 
     dbcv = sum(vcs .* cluster_sizes) / n
     return dbcv
-
-
-
-
-
