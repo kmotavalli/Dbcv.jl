@@ -158,7 +158,7 @@ function density_sparseness(cluster_inds::AbstractArray{Integer},
     internal_core_distances = core_distances[internal_node_inds]
     internal_node_inds = cluster_inds[internal_node_inds]
 
-    return (cluster_id,c luster_density_sparseness, internal_core_distances, internal_node_inds)
+    return (cluster_density_sparseness, internal_core_distances, internal_node_inds)
 end
 
 function density_separation(cluster_i::Integer,
