@@ -175,7 +175,7 @@ module Dbcv
             density_sep_btwn_clusters = Inf
         end
 
-        return density_sep_btwn_clusters
+        return (cluster_i, cluster_j, density_sep_btwn_clusters)
     end
 
     function dbcv(X::AbstractArray{<:Number},
@@ -251,20 +251,24 @@ module Dbcv
 
         number_cluster_pairs::Integer = fld((num_clusters*(num_clusters - 1)), 2)
 
-        if num_cluster_pairs > 0
-        Threads.@threads for pair in Combinatorics.combinations(cluster_ids, 2)
-            cluster_a::Integer = pair[1]
-            cluster_b::Integer = pair[2]
-            result = density_separation(cluster_a,
-                cluster_b,
-                get_subarray(distances,
-                    internal_objects_per_cluster[cluster_a],
-                    internal_objects_per_cluster[cluster_b]),
-                internal_core_distances_per_cluster[cluster_a],
-                internal_core_distances_per_cluster[cluster_b])
+        if number_cluster_pairs > 0
+            tasks = [Threads.@spawn density_Separation(
+                    pair[1],
+                    pair[2],
+                    get_subarray(distances,
+                        internal_objects_per_cluster[pair[1]],
+                        internal_objects_per_cluster[pair[2]]),
+                    internal_core_distances_per_cluster[pair[1]],
+                    internal_core_distances_per_cluster[pair[2]]) 
+                for pair in Combinatorics.combinations(cluster_ids, 2)]
+            
+            results = fetch.(tasks)
 
-            min_dspcs[cluster_a] = min(min_dspcs[cluster_a], result)
-            min_dspcs[cluster_b] = min(min_dspcs[cluster_b], result)
+            for result in eachrow(results)
+                cluster_a, cluster_b, density_sep = result
+                min_dspcs[cluster_a] = min(min_dspcs[cluster_a], density_sep)
+                min_dspcs[cluster_b] = min(min_dspcs[cluster_b], density_sep)
+            end
         end
 
         # verificare se necessario equivalente di np.nan_to_num(min_dspcs, copy=False, posinf=1e12)
@@ -277,4 +281,3 @@ module Dbcv
         dbcv = sum(vcs .* cluster_sizes) / n
         return dbcv
     end
-end
