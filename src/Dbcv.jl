@@ -1,6 +1,7 @@
 module Dbcv
 
 import Graphs, SimpleWeightedGraphs, NearestNeighbors
+using Base.Threads
 
 export dbcv
 
@@ -184,6 +185,17 @@ function dbcv(X::AbstractArray{<:Number},
     bits_ot_precision::AbstractInteger = 512, #approfondire se costruire tipo dato o usare fixed prec aritm.
 )::AbstractFloat
 
+    # check right away if the required number of threads is available
+    if n_processes == 0
+        n_processes = (size(y, 1) > 500) ? Threads.nthreads() : 1
+    else
+        if n_processes > Threads.nthreads()
+            error("The required number of threads is unavailable. Start julia with -t [requiredNumberOfThreads] \
+                  according to your machine specifications")
+        end
+    end
+
+
     n, d = size(X)
 
     if n != size(y, 1)
@@ -200,7 +212,7 @@ function dbcv(X::AbstractArray{<:Number},
     #keep whole colums, on true, bool_keep_matrix is not a flattened index for X!
     X = X[bool_keep_matix, :]
 
-    if y.size == 0:
+    if isempty(y)
         return 0.0
     end
 
@@ -232,12 +244,12 @@ function dbcv(X::AbstractArray{<:Number},
 
     cluster_indexes = [findall(y .== cls_id) for cls_id in cluster_ids]
 
-    if n_processes == 0
-        n_processes = (size(y, 1) > 500) ? 4 : 1
-    end
-
     #scegliere implementazione migliore multithreading
     #e divisione in sottomatrici/sottoproblemi
+
+    segm_size::Integer = ceil(Integer, size(distances, 1)/n_processes)
+
+    @Threads for i in 1:
 
 
 
