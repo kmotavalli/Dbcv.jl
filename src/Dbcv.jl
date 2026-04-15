@@ -252,7 +252,7 @@ module Dbcv
         number_cluster_pairs::Integer = fld((num_clusters*(num_clusters - 1)), 2)
 
         if number_cluster_pairs > 0
-            tasks = [Threads.@spawn density_Separation(
+            tasks = [Threads.@spawn density_separation(
                     pair[1],
                     pair[2],
                     get_subarray(distances,
