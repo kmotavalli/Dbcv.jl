@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import time, sys, os
+import time, sys, os, subprocess
 
 import numpy as np
 
@@ -59,9 +59,18 @@ def main():
 
     py_score = dbcv.dbcv(noisy_circles[0], classification)
 
-    print("\nCalculating the DBCV score with the py felsiq implementation: " + str(py_score))
+    print("\nDBCV score with the py felsiq implementation: " + str(py_score) + "\n")
 
-    #todo chiamata a script valutazione julia
+    output = subprocess.run(["julia", "./Tester.jl", dataset_path, classification_path], stdout = subprocess.PIPE, universal_newlines = True)    
+    julia_score = output.stdout
+
+    print("DBCV score with the Julia implementation: " + str(julia_score) + "\nsaving...\n")
+
+    with open(dir_path + "/circles_result.txt", 'w') as out:
+        out.write("DBCV Scores for " + "circles_dataset_" + tstringfile + ".csv\n")
+        out.write("Python: " + str(py_score) + "\n")
+        out.write("Julia: " + str(julia_score) + "\n")
+        out.close()
 
 if __name__ == '__main__':
     main()
