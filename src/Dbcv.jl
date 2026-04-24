@@ -91,31 +91,39 @@ module Dbcv
     function internal_objects(mutual_reach_distances::AbstractMatrix)
         
         mrd = (mutual_reach_distances + mutual_reach_distances') / 2
+
+        for i in 1:size(mrd, 1)
+            mrd[i, i] = 0.0
+        end
+
         graph = SimpleWeightedGraphs.SimpleWeightedGraph(mrd)
+        
+        n = size(mrd, 1)
+        mst_matrix = zeros(eltype(mrd), n, n)
 
         mst_edges = Graphs.kruskal_mst(graph)
 
 
         for edge in mst_edges
             src, dest, w = Graphs.src(edge), Graphs.dst(edge), edge.weight
-            mrd[src, dest] = w
-            mrd[dest, src] = w
+            mst_matrix[src, dest] = w
+            mst_matrix[dest, src] = w
         end
 
-        internal_nodes_i = findall(vec(count(>(0.0), mrd, dims=1)) .> 1)
-        internal_weights = get_subarray(mrd, internal_nodes_i, nothing)
+        internal_nodes_i = findall(vec(count(>(0.0), mst_matrix, dims=1)) .> 1)
+        internal_weights = get_subarray(mst_matrix, internal_nodes_i, nothing)
 
 
         if !isempty(internal_nodes_i)
             if length(internal_weights) > 1
                 return (internal_nodes_i, internal_weights)
             else
-                return (internal_nodes_i, mrd)
+                return (internal_nodes_i, mst_matrix)
             end
         elseif length(internal_weights) > 1
                 return (range(size(mutual_reach_distances, 1), step=1), internal_weights)
         else
-                return (range(size(mutual_reach_distances, 1), step=1), mrd)
+                return (range(size(mutual_reach_distances, 1), step=1), mst_matrix)
         end
 
     end
