@@ -5,6 +5,7 @@ Pkg.add("Graphs")
 Pkg.add("SimpleWeightedGraphs")
 Pkg.add("NearestNeighbors")
 Pkg.add("Combinatorics")
+Pkg.add("Distances")
 
 push!(LOAD_PATH, "../src")
 import Dbcv, DelimitedFiles

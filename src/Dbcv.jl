@@ -1,6 +1,6 @@
 module Dbcv
 
-    import Graphs, SimpleWeightedGraphs, NearestNeighbors, Combinatorics
+    import Graphs, SimpleWeightedGraphs, NearestNeighbors, Combinatorics, Distances
     using Base.Threads
 
     export dbcv
@@ -21,12 +21,12 @@ module Dbcv
         return non_noise_ids
     end
 
-    function dense_ranking(y::AbstractArray)
+    function dense_ranking(y::AbstractVector)
         vals = sort(unique(y))
-        return searchsortedfirst.(vals, y)
+        return searchsortedfirst.(Ref(vals), y)
     end
 
-    function check_duplicated_samples(X::AbstractArray{Number}; threshold::Real = 1e-9)
+    function check_duplicated_samples(X::AbstractArray; threshold::Real = 1e-9)
         if size(X, 1) <= 1
             return nothing
         end
@@ -40,7 +40,7 @@ module Dbcv
         end
     end
 
-    function pairwise_self_to_infinity!(X::AbstractArray{Number})
+    function pairwise_self_to_infinity!(X::AbstractArray)
         lastdim = minimum(size(X))
         if lastdim == 0
             return X #nothing
@@ -61,9 +61,9 @@ module Dbcv
     end
 
 
-    function pair_to_pair_distances(X::AbstractArray{Number};
+    function pair_to_pair_distances(X::AbstractArray;
         metric::AbstractString=squeclidean,
-        threshold::Real=1e-9)::AbstractArray{Number}
+        threshold::Real=1e-9)::AbstractArray
 
         tolerance=threshold/1e-3
         
@@ -72,13 +72,13 @@ module Dbcv
         	metric_class = getfield(Distances, metric_sym)
 		#instanciate
 		try
-			metric_type(tolerance)
+			metric_class(tolerance)
 		catch
-			print("tolerance not supported by " + metric + "\n")
-			metric_type()
+			print("tolerance not supported by " * metric * "\n")
+			metric_class()
 		end
 	catch e
-		error("Metric " + metric + " not found in the Distances.jl package, is it spelled correctly?\n
+		error("Metric " * metric * " not found in the Distances.jl package, is it spelled correctly?\n
 			see https://github.com/JuliaStats/Distances.jl?tab=readme-ov-file#distance-type-hierarchy\n")
 	end
 	
@@ -88,8 +88,8 @@ module Dbcv
         return distances
     end
 
-    function in_cluster_core_distance(distances::AbstractArray{Number},
-        d::Integer)::AbstractArray{Number}
+    function in_cluster_core_distance(distances::AbstractArray,
+        d::Integer)::AbstractArray
 
         n = size(distances, 1)
         core_dists = (sum(distances .^ -d, ndims(distances)) ./ (n - 1)) .^ (-1.0 / d)
@@ -99,7 +99,7 @@ module Dbcv
         return core_dists
     end
 
-    function internal_objects(mutual_reach_distances::AbstractArray{Number})::AbstractArray{Number}
+    function internal_objects(mutual_reach_distances::AbstractArray)::AbstractArray
         
         n = sqrt(length(mutual_reach_distances, 1))
         graph = SimpleWeightedGraphs.SimpleWeightedGraph(reshape(mutual_reach_distances, n, n))
@@ -132,8 +132,8 @@ module Dbcv
 
     end
 
-    function mutual_reachability_distances(mutual_distances::AbstractArray{Number},
-        d::Integer)::AbstractArray{Number}
+    function mutual_reachability_distances(mutual_distances::AbstractArray,
+        d::Integer)::AbstractArray
 
         core_distances = in_cluster_core_distance(mutual_distances, d)
         cd_appo = transpose(core_distances)
@@ -151,8 +151,8 @@ module Dbcv
         return transpose(arr[inds_a, actual_inds_b])
     end
 
-    function density_sparseness(cluster_inds::AbstractArray{Integer},
-        distances::AbstractArray{Number},
+    function density_sparseness(cluster_inds::AbstractArray,
+        distances::AbstractArray{<:Number},
         d::Integer)
 
         core_distances, mutual_reach_distances = mutual_reachability_distances(distances, d)
@@ -167,9 +167,9 @@ module Dbcv
 
     function density_separation(cluster_i::Integer,
         cluster_j::Integer,
-        distances::AbstractArray{Number},
-        internal_core_distances_i::AbstractArray{Number},
-        internal_core_distances_j::AbstractArray{Number})
+        distances::AbstractArray{<:Number},
+        internal_core_distances_i::AbstractArray{<:Number},
+        internal_core_distances_j::AbstractArray{<:Number})
 
 
         separation = max.(distances, internal_core_distances_i, transpose(internal_core_distances_j))
@@ -183,9 +183,9 @@ module Dbcv
         return (cluster_i, cluster_j, density_sep_btwn_clusters)
     end
 
-    function dbcv(X::AbstractArray{<:Number},
-        y::AbstractVector{<:Integer}; #do we want it to be able to be an abstract array?
-        metric::AbstractString = "squeclidean",
+    function dbcv(X::AbstractArray,
+        y::AbstractVector;
+        metric::AbstractString = "SqEuclidean",
         noise_id::Integer = -1,
         check_duplicates::Bool = true,
         sep_threshold = 1e-9,
@@ -236,10 +236,10 @@ module Dbcv
         min_dspcs = fill(Inf, size(cluster_ids))
 
         # core distances of internal nodes
-        internal_objects_per_cluster::Dict = Dict{Integer, AbstractArray{Integer}}
+        internal_objects_per_cluster::Dict = Dict{Integer, AbstractArray{<:Integer}}()
         # insert with internal_objects_per_cls[key] = newvalue
 
-        internal_core_distances_per_cluster::Dict = Dict{Integer, AbstractArray{Number}}
+        internal_core_distances_per_cluster::Dict = Dict{Integer, AbstractArray{<:Number}}()
 
         cluster_indexes = [findall(y .== cls_id) for cls_id in cluster_ids]
 
@@ -247,7 +247,7 @@ module Dbcv
         #e divisione in sottomatrici/sottoproblemi
 
         Threads.@threads for cluster_id in cluster_ids
-            subcls_indexes::AbstractArray{Integer} = view(cluster_indexes, cluster_id)
+            subcls_indexes = view(cluster_indexes, cluster_id)
             dscs[cluster_id],
             internal_core_distances_per_cluster[cluster_id],
             internal_objects_per_cluster[cluster_id] =
