@@ -92,7 +92,7 @@ module Dbcv
         d::Integer)::AbstractArray
 
         n = size(distances, 1)
-        core_dists = (sum(distances .^ -d, ndims(distances)) ./ (n - 1)) .^ (-1.0 / d)
+        core_dists = (sum(distances .^ -d, dims=ndims(distances)) ./ (n - 1)) .^ (-1.0 / d)
 
         #manca filtraggio/clamping inverso
 
@@ -246,11 +246,11 @@ module Dbcv
         #scegliere implementazione migliore multithreading
         #e divisione in sottomatrici/sottoproblemi
 
-        Threads.@threads for cluster_id in cluster_ids
-            subcls_indexes = view(cluster_indexes, cluster_id)
-            dscs[cluster_id],
-            internal_core_distances_per_cluster[cluster_id],
-            internal_objects_per_cluster[cluster_id] =
+        Threads.@threads for i in eachindex(cluster_ids)
+            subcls_indexes = cluster_indexes[i]
+            dscs[i],
+            internal_core_distances_per_cluster[i],
+            internal_objects_per_cluster[i] =
             density_sparseness(subcls_indexes, get_subarray(distances,subcls_indexes, nothing), d)
         end
 
