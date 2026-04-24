@@ -115,7 +115,7 @@ module Dbcv
         end
 
         internal_nodes_i = findall(vec(count(>(0.0), mst_matrix, dims=1)) .> 1)
-        internal_weights = get_subarray(mst_matrix, internal_nodes_i)
+        internal_weights = get_subarray(mst_matrix, internal_nodes_i, nothing)
 
 
         if !isempty(internal_nodes_i)
@@ -251,7 +251,7 @@ module Dbcv
             dscs[cluster_id],
             internal_core_distances_per_cluster[cluster_id],
             internal_objects_per_cluster[cluster_id] =
-            density_sparseness(subcls_indexes, get_subarray(distances,subcls_indexes), d)
+            density_sparseness(subcls_indexes, get_subarray(distances,subcls_indexes, nothing), d)
         end
 
         number_cluster_pairs::Integer = fld((num_clusters*(num_clusters - 1)), 2)
