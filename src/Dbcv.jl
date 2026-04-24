@@ -67,17 +67,22 @@ module Dbcv
 
         tolerance=threshold/1e-3
         
-        if metric == "sqeuclidean"
-            distances = Distances.pairwise(Distances.SqEuclidean(tolerance), X, X, dims=1)
-        elseif metric == "euclidean"
-            distances = Distances.pairwise(Distances.Euclidean(tolerance), X, X, dims=1)
-        elseif metric == "manhattan" | metric == "cityblock"
-            distances = Distances.pairwise(Distances.Cityblock(), X, X, dims=1)
-        else
-            error("metric not yet implemented")
-            #see https://github.com/JuliaStats/Distances.jl?tab=readme-ov-file#distance-type-hierarchy")
-        end
-
+        metric_instance = try
+        	metric_sym = Symbol(metric)
+        	metric_class = getfield(Distances, metric_sym)
+		#instanciate
+		try
+			metric_type(tolerance)
+		catch
+			print("tolerance not supported by " + metric + "\n")
+			metric_type()
+		end
+	catch e
+		error("Metric " + metric + " not found in the Distances.jl package, is it spelled correctly?\n
+			see https://github.com/JuliaStats/Distances.jl?tab=readme-ov-file#distance-type-hierarchy\n")
+	end
+	
+	distances = Distances.pairwise(metric_instance, X, X, dims=1)
         clamp!(distances, tolerance, Inf)
         pairwise_self_to_infinity!(distances)
         return distances
