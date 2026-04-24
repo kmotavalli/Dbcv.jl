@@ -64,7 +64,7 @@ def main():
     output = subprocess.run(["julia", "./Tester.jl", dataset_path, classification_path], stdout = subprocess.PIPE, universal_newlines = True)    
     julia_score = float(output.stdout)
 
-    print("DBCV score with the Julia implementation: " + str(julia_score) + "\nsaving...\n")
+    print("DBCV score with the Julia implementation: " + str(julia_score) + "\n")
 
     difference = py_score - julia_score
 
