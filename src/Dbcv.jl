@@ -41,31 +41,20 @@ module Dbcv
     end
 
     function pairwise_self_to_infinity!(X::AbstractArray)
-        lastdim = minimum(size(X))
-        if lastdim == 0
-            return X #nothing
+        n = size(X, 1)
+        if n == 0 return nothing
         end
-
-        dims = size(X)
-        tot_jump = 1
-        cur_jump = 1
-        for dim in 1:(ndims(X) - 1)
-            cur_jump *= dims[dim]
-            tot_jump += cur_jump
-        end
-
-        for i in 1:lastdim
-            access = 1 + (i - 1) * tot_jump
-            X[access] = Inf
+        for i in 1:n
+            X[i, i] = Inf
         end
     end
 
 
     function pair_to_pair_distances(X::AbstractArray;
-        metric::AbstractString=squeclidean,
-        threshold::Real=1e-9)::AbstractArray
+        metric::AbstractString="SqEuclidean",
+        threshold::Real=1e-9)::AbstractMatrix
 
-        tolerance=threshold/1e-3
+        tolerance= threshold / 1e-3
         
         metric_instance = try
         	metric_sym = Symbol(metric)
@@ -89,55 +78,54 @@ module Dbcv
     end
 
     function in_cluster_core_distance(distances::AbstractArray,
-        d::Integer)::AbstractArray
+        d::Integer)::Vector{Real}
 
         n = size(distances, 1)
         core_dists = (sum(distances .^ -d, dims=ndims(distances)) ./ (n - 1)) .^ (-1.0 / d)
 
         #manca filtraggio/clamping inverso
 
-        return core_dists
+        return vec(core_dists)
     end
 
-    function internal_objects(mutual_reach_distances::AbstractArray)::AbstractArray
+    function internal_objects(mutual_reach_distances::AbstractMatrix)
         
-        n = sqrt(length(mutual_reach_distances, 1))
-        graph = SimpleWeightedGraphs.SimpleWeightedGraph(reshape(mutual_reach_distances, n, n))
+        mrd = (mutual_reach_distances + mutual_reach_distances') / 2
+        graph = SimpleWeightedGraphs.SimpleWeightedGraph(mrd)
 
-        mst_edges = transpose(Graphs.kruskal_mst(graph))
-        mst_matrix = deepcopy(mutual_reach_distances)
+        mst_edges = Graphs.kruskal_mst(graph)
 
 
         for edge in mst_edges
-            src, dest, w = Graphs.src(edge), Graphs.dst(edge), Graphs.weight(edge)
-            mst_matrix[src, dest] = w
-            mst_matrix[dest, src] = w
+            src, dest, w = Graphs.src(edge), Graphs.dst(edge), edge.weight
+            mrd[src, dest] = w
+            mrd[dest, src] = w
         end
 
-        internal_nodes_i = findall(vec(count(>(0.0), mst_matrix, dims=1)) .> 1)
-        internal_weights = get_subarray(mst_matrix, internal_nodes_i, nothing)
+        internal_nodes_i = findall(vec(count(>(0.0), mrd, dims=1)) .> 1)
+        internal_weights = get_subarray(mrd, internal_nodes_i, nothing)
 
 
         if !isempty(internal_nodes_i)
             if length(internal_weights) > 1
                 return (internal_nodes_i, internal_weights)
             else
-                return (internal_nodes_i, mst_matrix)
+                return (internal_nodes_i, mrd)
             end
         elseif length(internal_weights) > 1
                 return (range(size(mutual_reach_distances, 1), step=1), internal_weights)
         else
-                return (range(size(mutual_reach_distances, 1), step=1), mst_matrix)
+                return (range(size(mutual_reach_distances, 1), step=1), mrd)
         end
 
     end
 
     function mutual_reachability_distances(mutual_distances::AbstractArray,
-        d::Integer)::AbstractArray
+        d::Integer)::Tuple{AbstractArray, AbstractArray}
 
-        core_distances = in_cluster_core_distance(mutual_distances, d)
+        core_distances = in_cluster_core_distance(Matrix(mutual_distances), d)
         cd_appo = transpose(core_distances)
-        mrd = map(max, mutual_distances, core_distances, cd_appo)
+        mrd = max.(mutual_distances, core_distances, cd_appo)
         return (core_distances, mrd)
     end
 
@@ -148,7 +136,7 @@ module Dbcv
 
         actual_inds_b = isnothing(inds_b) ? inds_a : inds_b
 
-        return transpose(arr[inds_a, actual_inds_b])
+        return arr[inds_a, actual_inds_b]
     end
 
     function density_sparseness(cluster_inds::AbstractArray,
@@ -158,7 +146,7 @@ module Dbcv
         core_distances, mutual_reach_distances = mutual_reachability_distances(distances, d)
         internal_node_inds, internal_edge_weights = internal_objects(mutual_reach_distances)
 
-        cluster_density_sparseness = max(internal_edge_weights)
+        cluster_density_sparseness = maximum(internal_edge_weights)
         internal_core_distances = core_distances[internal_node_inds]
         internal_node_inds = cluster_inds[internal_node_inds]
 
@@ -175,7 +163,7 @@ module Dbcv
         separation = max.(distances, internal_core_distances_i, transpose(internal_core_distances_j))
 
         if !isempty(separation)
-            density_sep_btwn_clusters = min(separation)
+            density_sep_btwn_clusters = minimum(separation)
         else
             density_sep_btwn_clusters = Inf
         end
@@ -236,10 +224,10 @@ module Dbcv
         min_dspcs = fill(Inf, size(cluster_ids))
 
         # core distances of internal nodes
-        internal_objects_per_cluster::Dict = Dict{Integer, AbstractArray{<:Integer}}()
-        # insert with internal_objects_per_cls[key] = newvalue
+        internal_objects_per_cluster = Vector{AbstractArray{<:Number}}(undef, num_clusters)
+        # insert with internal_objects_per_cluster[key] = newvalue
 
-        internal_core_distances_per_cluster::Dict = Dict{Integer, AbstractArray{<:Number}}()
+        internal_core_distances_per_cluster = Vector{AbstractArray}(undef, num_clusters)
 
         cluster_indexes = [findall(y .== cls_id) for cls_id in cluster_ids]
 
@@ -269,8 +257,7 @@ module Dbcv
             
             results = fetch.(tasks)
 
-            for result in eachrow(results)
-                cluster_a, cluster_b, density_sep = result
+            for (cluster_a, cluster_b, density_sep) in results
                 min_dspcs[cluster_a] = min(min_dspcs[cluster_a], density_sep)
                 min_dspcs[cluster_b] = min(min_dspcs[cluster_b], density_sep)
             end
