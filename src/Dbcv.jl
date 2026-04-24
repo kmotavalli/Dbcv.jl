@@ -146,7 +146,8 @@ module Dbcv
         core_distances, mutual_reach_distances = mutual_reachability_distances(distances, d)
         internal_node_inds, internal_edge_weights = internal_objects(mutual_reach_distances)
 
-        cluster_density_sparseness = maximum(internal_edge_weights)
+        valid_weights = internal_edge_weights[isfinite.(internal_edge_weights)]
+        cluster_density_sparseness = isempty(valid_weights) ? 0.0 : maximum(valid_weights)
         internal_core_distances = core_distances[internal_node_inds]
         internal_node_inds = cluster_inds[internal_node_inds]
 
@@ -266,6 +267,7 @@ module Dbcv
         # verificare se necessario equivalente di np.nan_to_num(min_dspcs, copy=False, posinf=1e12)
 
         base::AbstractFloat = sep_threshold/1e-3
+
         vcs::AbstractArray = (min_dspcs .- dscs) ./ (base .+ max.(min_dspcs, dscs))
 
         # verificare se necessario equivalente di np.nan_to_num(vcs, copy=False, nan=0.0)
