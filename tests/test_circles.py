@@ -18,13 +18,17 @@ def main():
     n_samples = 500
     seed = 30
     noise=0.05
+    eps=0.25
 
     if len(sys.argv) > 1:
-        n_samples = sys.argv[1]
+        n_samples = int(sys.argv[1])
     if len(sys.argv) > 2:
-        noise = sys.argv[2]
+        eps = float(sys.argv[2])
     if len(sys.argv) > 3:
-        seed = sys.argv[3]
+        noise = float(sys.argv[3])
+    if len(sys.argv) > 4:
+        seed = int(sys.argv[4])
+
 
     noisy_circles = datasets.make_circles(
         n_samples=n_samples, factor=0.5, noise=noise, random_state=seed
@@ -48,7 +52,7 @@ def main():
 
     plot_num = 1
 
-    dbscan = cluster.DBSCAN(eps=0.25).fit(noisy_circles[0])
+    dbscan = cluster.DBSCAN(eps=eps).fit(noisy_circles[0])
     classification = np.array(dbscan.labels_, dtype=np.int32)
     print("\nClassification: \n")
     print(dbscan.labels_)
