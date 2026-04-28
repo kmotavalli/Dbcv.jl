@@ -49,8 +49,6 @@ def main():
 
     np.savetxt(dataset_path , noisy_circles[0], delimiter= ",")
 
-    plot_num = 1
-
     dbscan = cluster.DBSCAN(eps=eps).fit(noisy_circles[0])
     classification = np.array(dbscan.labels_, dtype=np.int32)
     print("\nClassification: \n")
