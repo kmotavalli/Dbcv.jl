@@ -27,9 +27,18 @@ def main():
 
     ds_method = getattr(datasets, 'make_' + args.testname)
 
-    dataset = ds_method(
-        n_samples=args.numsamples, factor=args.factor, noise=args.noiselevel, random_state=args.seed
-    )
+    match args.testname:
+        case "circles":
+            dataset = ds_method(
+            n_samples=args.numsamples, factor=args.factor, noise=args.noiselevel, random_state=args.seed)
+        case "moons":
+            dataset = ds_method(
+            n_samples=args.numsamples, noise=args.noiselevel)
+        case "blobs":
+            dataset = ds_method(
+            n_samples=args.numsamples, random_state=args.seed)
+
+            
 
     print("Datapoints: \n")
     print(dataset[0])
@@ -68,9 +77,9 @@ def main():
 
     difference = py_score - julia_score
 
-    print("Difference: " + str(difference) + "\nSaving on " + dir_path + "/" + args.testname + "_result.txt\n")
+    print("Difference: " + str(difference) + "\nSaving on " + dir_path + "/" + args.testname + "_result_" + tstringfile + ".txt\n")
 
-    with open(dir_path + "/" + args.testname + "_result.txt", 'w') as out:
+    with open(dir_path + "/" + args.testname + "_result_ " + tstringfile + ".txt", 'w') as out:
         out.write("DBCV Scores for " + args.testname + "_dataset_" + tstringfile + ".csv\n")
         out.write("Python: " + str(py_score) + "\n")
         out.write("Julia: " + str(julia_score) + "\n\n")

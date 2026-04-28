@@ -69,9 +69,9 @@ def main():
 
     difference = py_score - julia_score
 
-    print("Difference: " + str(difference) + "\nSaving on " + dir_path + "/circles_result.txt\n")
+    print("Difference: " + str(difference) + "\nSaving on " + dir_path + "/circles_result_" + tstringfile + ".txt\n")
 
-    with open(dir_path + "/circles_result.txt", 'w') as out:
+    with open(dir_path + "/circles_result_" + tstringfile + ".txt", 'w') as out:
         out.write("DBCV Scores for " + "circles_dataset_" + tstringfile + ".csv\n")
         out.write("Python: " + str(py_score) + "\n")
         out.write("Julia: " + str(julia_score) + "\n\n")
