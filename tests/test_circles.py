@@ -7,7 +7,6 @@ import numpy as np
 #richiede installazione sklearn e numpy
 import felsiq_dbcv as dbcv #felsiq implementation
 from sklearn import cluster, datasets
-from sklearn.neighbors import kneighbors_graph
 
 def main():
     now = time.localtime()
