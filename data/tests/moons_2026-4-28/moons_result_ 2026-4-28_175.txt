@@ -1,0 +1,5 @@
+DBCV Scores for moons_dataset_2026-4-28_175.csv
+Python: 0.8357396328451447
+Julia: 0.8357344238527634
+
+Difference: 5.2089923813225525e-06
