@@ -2,6 +2,7 @@ module Dbcv
 
     import Graphs, SimpleWeightedGraphs, NearestNeighbors, Combinatorics, Distances
     using Base.Threads
+    import DelimitedFiles
 
     export dbcv
 
@@ -12,7 +13,7 @@ module Dbcv
         non_noise_ids .= true
         for i in eachindex(y)
             pos = findfirst(id -> id == y[i], cluster_ids)
-            if cluster_sizes[pos] == 1
+            if cluster_sizes[pos] == 1 || y[i] == noise_id
                 #i from the iterator can be a multidimensional coordinates tuple if y is multidim
                 y[i] = noise_id
                 non_noise_ids[i] = false
@@ -54,24 +55,27 @@ module Dbcv
         metric::AbstractString="SqEuclidean",
         threshold::Real=1e-9)::AbstractMatrix
 
-        tolerance= threshold / 1e-3
+        tolerance = threshold / 1e-3
         
         metric_instance = try
         	metric_sym = Symbol(metric)
         	metric_class = getfield(Distances, metric_sym)
-		#instanciate
-		try
-			metric_class(tolerance)
-		catch
-			print("tolerance not supported by " * metric * "\n")
-			metric_class()
-		end
-	catch e
-		error("Metric " * metric * " not found in the Distances.jl package, is it spelled correctly?\n
-			see https://github.com/JuliaStats/Distances.jl?tab=readme-ov-file#distance-type-hierarchy\n")
-	end
-	
-	distances = Distances.pairwise(metric_instance, X, X, dims=1)
+		    #instanciate
+		    try
+			    metric_class(tolerance)
+		    catch
+			    print("tolerance not supported by " * metric * "\n")
+			    metric_class()
+		    end
+	    catch e
+		    error("Metric " * metric * " not found in the Distances.jl package, is it spelled correctly?\n
+			    see https://github.com/JuliaStats/Distances.jl?tab=readme-ov-file#distance-type-hierarchy\n")
+	    end
+
+        m::Integer = size(X, 1)
+
+        distances = Distances.pairwise(metric_instance, X, X, dims=1)
+
         clamp!(distances, tolerance, Inf)
         pairwise_self_to_infinity!(distances)
         return distances
@@ -180,8 +184,8 @@ module Dbcv
         return (cluster_i, cluster_j, density_sep_btwn_clusters)
     end
 
-    function dbcv(X::AbstractArray,
-        y::AbstractVector;
+    function dbcv(Xo::AbstractArray,
+        yo::AbstractVector;
         metric::AbstractString = "SqEuclidean",
         noise_id::Integer = -1,
         check_duplicates::Bool = true,
@@ -191,21 +195,20 @@ module Dbcv
         bits_ot_precision::Integer = 512, #approfondire se costruire tipo dato o usare fixed prec aritm.
     )::AbstractFloat
 
-        n, d = size(X)
+        n, d = size(Xo)
 
-        if n != size(y, 1)
+        if n != size(yo, 1)
             throw(ArgumentError("Mismatch in input data (X) lenght and their clustering id assignments (y)"))
         end
 
         #clusters containing a single element can have that element regarded as noise.
         #reassign all noise to the noise_id cluster, by default id -1
 
-        bool_keep_matrix = convert_singleton_clusters_to_noise!(y, noise_id)
+        bool_keep_matrix = convert_singleton_clusters_to_noise!(yo, noise_id)
         
-        #filtering the AbstractArray does flattern it
-        y = y[bool_keep_matrix]
+        y = @view yo[bool_keep_matrix]
         #keep whole colums, on true, bool_keep_matrix is not a flattened index for X!
-        X = X[bool_keep_matrix, :]
+        X = @view Xo[bool_keep_matrix, :]
 
         if isempty(y)
             return 0.0
@@ -224,7 +227,7 @@ module Dbcv
             check_duplicated_samples(X, threshold=sep_threshold)
         end
 
-        distances = pair_to_pair_distances(X, metric=metric, threshold=sep_threshold)
+        distances = pair_to_pair_distances(X, metric=metric, threshold=1e-12)
 
         # DSC: 'Density Sparseness of a Cluster' init
         dscs = zeros(size(cluster_ids))
@@ -276,6 +279,8 @@ module Dbcv
 
         clamp!(min_dspcs, sep_threshold, 1e12)
 
+        #alternativa esattamente come py
+        #replace!(min_dspcs, Inf => 1e12)
 
         base::AbstractFloat = sep_threshold/1e-3
 
@@ -284,7 +289,6 @@ module Dbcv
         # verificare se necessario equivalente di np.nan_to_num(vcs, copy=False, nan=0.0)
 
         replace!(vcs, NaN => 0.0)
-
 
         dbcv = sum(vcs .* cluster_sizes) / n
         return dbcv
