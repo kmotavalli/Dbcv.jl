@@ -274,6 +274,8 @@ module Dbcv
 
         # verificare se necessario equivalente di np.nan_to_num(min_dspcs, copy=False, posinf=1e12)
 
+        clamp!(min_dspcs, sep_threshold, 1e12)
+
 
         base::AbstractFloat = sep_threshold/1e-3
 
@@ -281,10 +283,10 @@ module Dbcv
 
         # verificare se necessario equivalente di np.nan_to_num(vcs, copy=False, nan=0.0)
 
+        replace!(vcs, NaN => 0.0)
+
+
         dbcv = sum(vcs .* cluster_sizes) / n
-        if isnan(dbcv)
-            dbcv = -1.0
-        end
         return dbcv
     end
 end
