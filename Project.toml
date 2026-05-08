@@ -10,5 +10,4 @@ authors = ["Keivan Motavalli"]
 
 Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
 SimpleWeightedGraphs = "47aef6b3-ad0c-573a-a1e2-d07658019622"
-NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
 Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
