@@ -1,6 +1,6 @@
 module Dbcv
 
-    import Graphs, SimpleWeightedGraphs, NearestNeighbors, Combinatorics, Distances
+    import Graphs, SimpleWeightedGraphs, Combinatorics, Distances
     using Base.Threads
     import DelimitedFiles
 
@@ -31,12 +31,13 @@ module Dbcv
         if size(X, 1) <= 1
             return nothing
         end
-        knn_tree = NearestNeighbors.KDTree(X, Distances.Euclidean())
 
         for i in 1:size(X, 1)
-            _, dists = NearestNeighbors.nn(knn_tree, X[i,:])
-            if any(dist -> dist < threshold, dists)
-                throw(FieldError("Duplicate samples have been found in X. Try changing sep_threshold (def e^-9)"))
+            for j in 1:size(X, 1)
+                if i != j && Distances.Euclidean()(X[i, :], X[j, :]) < threshold
+                    error("Duplicate samples have been found in X. Try changing sep_threshold (def e^-9)")
+                    exit()
+                end
             end
         end
     end
