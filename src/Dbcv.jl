@@ -131,15 +131,19 @@ module Dbcv
         end
 
         graph = SimpleWeightedGraphs.SimpleWeightedGraph(mrd)
+        #distmx = SimpleWeightedGraphs.weights(graph)
         
         n = size(mrd, 1)
         mst_matrix = zeros(eltype(mrd), n, n)
 
+        #mst_edges = Graphs.prim_mst(graph)
         mst_edges = Graphs.kruskal_mst(graph)
 
 
         for edge in mst_edges
-            src, dest, w = Graphs.src(edge), Graphs.dst(edge), edge.weight
+            src, dest = Graphs.src(edge), Graphs.dst(edge)
+            #w = distmx[src, dest]
+            w = edge.weight
             mst_matrix[src, dest] = w
             mst_matrix[dest, src] = w
         end
