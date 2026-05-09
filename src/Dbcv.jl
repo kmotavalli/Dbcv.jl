@@ -27,24 +27,49 @@ module Dbcv
         return searchsortedfirst.(Ref(vals), y)
     end
 
-    function subproblem_has_duplicates(X::AbstractArray, x_size::Integer, start_index::Integer, stop_index::Integer, threshold::Real)::Bool
-        for i in start_index:stop_index
-            for j in 1:x_size
-                if i != j && Distances.Euclidean()(X[i, :], X[j, :]) < threshold
+    function subproblem_distances_duplicates!(X::AbstractArray, x_size::Integer, distances::AbstractArray{Real}, dist_instance,
+        start_index::Integer, stop_index::Integer, threshold::Real)::Bool
+        @inbounds for i in start_index:stop_index
+            distances[i, i] = +Inf
+            @inbounds for j in i+1:x_size #can also add @simd but not sure if it will propagate to the metric
+                dist = dist_instance(X[i, :], X[j, :])
+
+                if dist < threshold
                     return true
                 end
+
+                distances[i, j] = dist
+                distances[j, i] = dist
             end
         end
         return false
     end
 
+    function pair_to_pair_distances(X::AbstractArray;
+        metric::AbstractString="SqEuclidean",
+        threshold::Real=1e-9, dup_check::Bool)::AbstractMatrix
 
-    function check_duplicated_samples(X::AbstractArray; threshold::Real = 1e-9)
         x_size::Integer = size(X, 1)
-
         if x_size <= 1
             return nothing
         end
+
+        tolerance = threshold / 1e-3
+        distances = Matrix{Real}(undef, x_size, x_size)
+        metric_instance = try
+        	metric_sym = Symbol(metric)
+        	metric_class = getfield(Distances, metric_sym)
+		    #instanciate
+		    try
+			    metric_class(tolerance)
+		    catch
+			    print("tolerance not supported by " * metric * "\n")
+			    metric_class()
+		    end
+	    catch e
+		    error("Metric " * metric * " not found in the Distances.jl package, is it spelled correctly?\n
+			    see https://github.com/JuliaStats/Distances.jl?tab=readme-ov-file#distance-type-hierarchy\n")
+	    end
 
         num_threads::Integer = Threads.nthreads(:default)
         problem_size::Integer = div(x_size, num_threads) #integer division
@@ -70,56 +95,19 @@ module Dbcv
                     finish = cur_index + problem_size - 1
                 end
             end
-            handles[t] = Threads.@spawn subproblem_has_duplicates(X, x_size, start, finish, threshold)
+            handles[t] = Threads.@spawn subproblem_distances_duplicates!(X, x_size, distances, metric_instance, start, finish, threshold)
         end
         
         results = fetch.(handles)
 
         for i in 1:num_threads
-            if results[i] == true
+            if dup_check && results[i] == true
                 error("Duplicate samples have been found in X. Try changing sep_threshold (def e^-9)")
                 exit()
             end
         end
-    end
-
-    function pairwise_self_to_infinity!(X::AbstractArray)
-        n = size(X, 1)
-        if n == 0 return nothing
-        end
-        for i in 1:n
-            X[i, i] = Inf
-        end
-    end
-
-
-    function pair_to_pair_distances(X::AbstractArray;
-        metric::AbstractString="SqEuclidean",
-        threshold::Real=1e-9)::AbstractMatrix
-
-        tolerance = threshold / 1e-3
-        
-        metric_instance = try
-        	metric_sym = Symbol(metric)
-        	metric_class = getfield(Distances, metric_sym)
-		    #instanciate
-		    try
-			    metric_class(tolerance)
-		    catch
-			    print("tolerance not supported by " * metric * "\n")
-			    metric_class()
-		    end
-	    catch e
-		    error("Metric " * metric * " not found in the Distances.jl package, is it spelled correctly?\n
-			    see https://github.com/JuliaStats/Distances.jl?tab=readme-ov-file#distance-type-hierarchy\n")
-	    end
-
-        m::Integer = size(X, 1)
-
-        distances = Distances.pairwise(metric_instance, X, X, dims=1)
 
         clamp!(distances, tolerance, Inf)
-        pairwise_self_to_infinity!(distances)
         return distances
     end
 
@@ -232,9 +220,6 @@ module Dbcv
         noise_id::Integer = -1,
         check_duplicates::Bool = true,
         sep_threshold = 1e-9,
-        #enable_dynamic_precision::Bool = false,
-        #enable_dynamic_precision ignored, that's the default in Julia!
-        bits_ot_precision::Integer = 512, #approfondire se costruire tipo dato o usare fixed prec aritm.
     )::AbstractFloat
 
         n, d = size(Xo)
@@ -265,11 +250,7 @@ module Dbcv
         num_clusters::Integer = length(cluster_ids)
         cluster_sizes =  [count(==(id), y) for id in cluster_ids]
 
-        if check_duplicates
-            check_duplicated_samples(X, threshold=sep_threshold)
-        end
-
-        distances = pair_to_pair_distances(X, metric=metric, threshold=sep_threshold)
+        distances = pair_to_pair_distances(X, metric=metric, threshold=sep_threshold, dup_check=check_duplicates)
 
         # DSC: 'Density Sparseness of a Cluster' init
         dscs = zeros(size(cluster_ids))
