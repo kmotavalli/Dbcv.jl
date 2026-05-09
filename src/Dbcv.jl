@@ -27,7 +27,7 @@ module Dbcv
         return searchsortedfirst.(Ref(vals), y)
     end
 
-    function subproblem_distances_duplicates!(X::AbstractArray, x_size::Integer, distances::AbstractArray{Real}, dist_instance,
+    function subproblem_distances_duplicates!(X::AbstractArray, x_size::Integer, distances::AbstractArray{Float64}, dist_instance,
         start_index::Integer, stop_index::Integer, threshold::Real)::Bool
         @inbounds for i in start_index:stop_index
             distances[i, i] = +Inf
@@ -55,7 +55,7 @@ module Dbcv
         end
 
         tolerance = threshold / 1e-3
-        distances = Matrix{Real}(undef, x_size, x_size)
+        distances = Matrix{Float64}(undef, x_size, x_size)
         metric_instance = try
         	metric_sym = Symbol(metric)
         	metric_class = getfield(Distances, metric_sym)
