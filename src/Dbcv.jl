@@ -32,7 +32,7 @@ module Dbcv
         @inbounds for i in start_index:stop_index
             distances[i, i] = +Inf
             @inbounds for j in i+1:x_size #can also add @simd but not sure if it will propagate to the metric
-                dist = dist_instance(X[i, :], X[j, :])
+                dist = dist_instance(view(X, i, :), view(X, j, :))
 
                 if dist < threshold
                     return true
