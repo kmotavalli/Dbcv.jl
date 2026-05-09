@@ -269,7 +269,7 @@ module Dbcv
             check_duplicated_samples(X, threshold=sep_threshold)
         end
 
-        distances = pair_to_pair_distances(X, metric=metric, threshold=sep_threshold/1e-3)
+        distances = pair_to_pair_distances(X, metric=metric, threshold=sep_threshold)
 
         # DSC: 'Density Sparseness of a Cluster' init
         dscs = zeros(size(cluster_ids))
