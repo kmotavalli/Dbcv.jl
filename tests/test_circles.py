@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import time, sys, os, subprocess
+import time, sys, os, subprocess, multiprocessing
 
 import numpy as np
 
@@ -10,6 +10,7 @@ from sklearn import cluster, datasets
 
 def main():
     now = time.localtime()
+    ncores = multiprocessing.cpu_count()
 
     tstringdir = str(now.tm_year) + "-" + str(now.tm_mon) + "-" + str(now.tm_mday)
     tstringfile = str(now.tm_year) + "-" + str(now.tm_mon) + "-" + str(now.tm_mday) + "_" + str(now.tm_hour) + str(now.tm_min)
@@ -62,7 +63,7 @@ def main():
 
     print("\nDBCV score with the py felsiq implementation: " + str(py_score) + "\n")
 
-    output = subprocess.run(["julia", "./Tester.jl", dataset_path, classification_path], stdout = subprocess.PIPE, universal_newlines = True)    
+    output = subprocess.run(["julia", f'-t {ncores}', "./Tester.jl", dataset_path, classification_path], stdout = subprocess.PIPE, universal_newlines = True)    
     julia_score = float(output.stdout)
 
     print("DBCV score with the Julia implementation: " + str(julia_score) + "\n")
