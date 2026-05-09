@@ -27,17 +27,58 @@ module Dbcv
         return searchsortedfirst.(Ref(vals), y)
     end
 
+    function subproblem_has_duplicates(X::AbstractArray, x_size::Integer, start_index::Integer, stop_index::Integer, threshold::Real)::Bool
+        for i in start_index:stop_index
+            for j in 1:x_size
+                if i != j && Distances.Euclidean()(X[i, :], X[j, :]) < threshold
+                    return true
+                end
+            end
+        end
+        return false
+    end
+
+
     function check_duplicated_samples(X::AbstractArray; threshold::Real = 1e-9)
-        if size(X, 1) <= 1
+        x_size::Integer = size(X, 1)
+
+        if x_size <= 1
             return nothing
         end
 
-        for i in 1:size(X, 1)
-            for j in 1:size(X, 1)
-                if i != j && Distances.Euclidean()(X[i, :], X[j, :]) < threshold
-                    error("Duplicate samples have been found in X. Try changing sep_threshold (def e^-9)")
-                    exit()
+        num_threads::Integer = Threads.nthreads(:default)
+        problem_size::Integer = div(x_size, num_threads) #integer division
+        reminder::Integer = x_size - (problem_size * num_threads)
+
+        if reminder > 0
+            num_threads = num_threads + 1
+        end
+
+        handles::AbstractVector = Vector{Task}(undef, num_threads)
+
+        cur_index::Integer = 1
+
+        for t in 1:num_threads
+            start = cur_index
+            if t < num_threads
+                finish = cur_index + problem_size
+                cur_index = cur_index + problem_size
+            else
+                if reminder > 0
+                    finish = cur_index + reminder -1
+                else
+                    finish = cur_index + problem_size - 1
                 end
+            end
+            handles[t] = Threads.@spawn subproblem_has_duplicates(X, x_size, start, finish, threshold)
+        end
+        
+        results = fetch.(handles)
+
+        for i in 1:num_threads
+            if results[i] == true
+                error("Duplicate samples have been found in X. Try changing sep_threshold (def e^-9)")
+                exit()
             end
         end
     end
@@ -228,7 +269,7 @@ module Dbcv
             check_duplicated_samples(X, threshold=sep_threshold)
         end
 
-        distances = pair_to_pair_distances(X, metric=metric, threshold=1e-12)
+        distances = pair_to_pair_distances(X, metric=metric, threshold=sep_threshold/1e-3)
 
         # DSC: 'Density Sparseness of a Cluster' init
         dscs = zeros(size(cluster_ids))
