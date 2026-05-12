@@ -224,7 +224,7 @@ module Dbcv
         noise_id::Integer = -1,
         check_duplicates::Bool = true,
         sep_threshold = 1e-9,
-        bits_of_precision = 256,
+        bits_of_precision = 512,
     )::AbstractFloat
 
         setprecision(BigFloat, bits_of_precision)

@@ -3,12 +3,10 @@ import Dbcv, DelimitedFiles
 
 dataset_file::String, clustering_file::String = ARGS
 
-dataset::AbstractArray = DelimitedFiles.readdlm(dataset_file, ',', Float64)
+dataset::AbstractArray = DelimitedFiles.readdlm(dataset_file, ',', BigFloat)
 
 clustering::AbstractArray = DelimitedFiles.readdlm(clustering_file, ',', Int)
 
 result::Real = Dbcv.dbcv(dataset, vec(clustering[:, 1]))
 
 print(result)
-
-
