@@ -75,7 +75,7 @@ def main():
     with open(dir_path + "/circles_result_" + tstringfile + ".txt", 'w') as out:
         out.write("DBCV Scores for " + "circles_dataset_" + tstringfile + ".csv\n")
         out.write("Python: " + str(py_score) + "\n")
-        out.write("Julia: " + str(julia_score) + "\n\n")
+        out.write("Julia:  " + str(julia_score) + "\n\n")
         out.write("Difference: " + str (difference) + "\n")
         out.close()
 
