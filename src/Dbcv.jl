@@ -27,12 +27,12 @@ module Dbcv
         return searchsortedfirst.(Ref(vals), y)
     end
 
-    function subproblem_distances_duplicates!(X::AbstractArray, x_size::Integer, distances::AbstractArray{Float64}, dist_instance,
-        start_index::Integer, stop_index::Integer, threshold::Real)::Bool
+    function subproblem_distances_duplicates!(X::AbstractArray, x_size::Integer, distances::AbstractArray{BigFloat}, dist_instance,
+        start_index::Integer, stop_index::Integer, threshold::BigFloat)::Bool
         @inbounds for i in start_index:stop_index
             distances[i, i] = +Inf
             @inbounds for j in i+1:x_size #can also add @simd but not sure if it will propagate to the metric
-                dist = dist_instance(view(X, i, :), view(X, j, :))
+                dist::BigFloat = dist_instance(view(X, i, :), view(X, j, :))
 
                 if dist < threshold
                     return true
@@ -47,7 +47,7 @@ module Dbcv
 
     function pair_to_pair_distances(X::AbstractArray;
         metric::AbstractString="SqEuclidean",
-        threshold::Real=1e-9, dup_check::Bool)::AbstractMatrix
+        threshold::BigFloat=1e-9, dup_check::Bool)::AbstractMatrix
 
         x_size::Integer = size(X, 1)
         if x_size <= 1
@@ -55,7 +55,7 @@ module Dbcv
         end
 
         tolerance = threshold / 1e-3
-        distances = Matrix{Float64}(undef, x_size, x_size)
+        distances = Matrix{BigFloat}(undef, x_size, x_size)
         metric_instance = try
         	metric_sym = Symbol(metric)
         	metric_class = getfield(Distances, metric_sym)
@@ -111,8 +111,8 @@ module Dbcv
         return distances
     end
 
-    function in_cluster_core_distance(distances::AbstractArray,
-        d::Integer)::Vector{Real}
+    function in_cluster_core_distance(distances::AbstractArray{BigFloat},
+        d::Integer)::Vector{BigFloat}
 
         n = size(distances, 1)
         core_dists = (sum(distances .^ -d, dims=ndims(distances)) ./ (n - 1)) .^ (-1.0 / d)
@@ -122,9 +122,9 @@ module Dbcv
         return vec(core_dists)
     end
 
-    function internal_objects(mutual_reach_distances::AbstractMatrix)
+    function internal_objects(mutual_reach_distances::AbstractMatrix{BigFloat})
         
-        mrd = (mutual_reach_distances + mutual_reach_distances') / 2
+        mrd::AbstractArray{BigFloat} = (mutual_reach_distances + mutual_reach_distances') / 2
 
         for i in 1:size(mrd, 1)
             mrd[i, i] = 0.0
@@ -169,9 +169,9 @@ module Dbcv
     function mutual_reachability_distances(mutual_distances::AbstractArray,
         d::Integer)::Tuple{AbstractArray, AbstractArray}
 
-        core_distances = in_cluster_core_distance(Matrix(mutual_distances), d)
-        cd_appo = transpose(core_distances)
-        mrd = max.(mutual_distances, core_distances, cd_appo)
+        core_distances::AbstractArray{BigFloat} = in_cluster_core_distance(Matrix(mutual_distances), d)
+        cd_appo::AbstractArray{BigFloat} = transpose(core_distances)
+        mrd::AbstractArray{BigFloat} = max.(mutual_distances, core_distances, cd_appo)
         return (core_distances, mrd)
     end
 
@@ -186,7 +186,7 @@ module Dbcv
     end
 
     function density_sparseness(cluster_inds::AbstractArray,
-        distances::AbstractArray{<:Number},
+        distances::AbstractArray{BigFloat},
         d::Integer)
 
         core_distances, mutual_reach_distances = mutual_reachability_distances(distances, d)
@@ -202,9 +202,9 @@ module Dbcv
 
     function density_separation(cluster_i::Integer,
         cluster_j::Integer,
-        distances::AbstractArray{<:Number},
-        internal_core_distances_i::AbstractArray{<:Number},
-        internal_core_distances_j::AbstractArray{<:Number})
+        distances::AbstractArray{BigFloat},
+        internal_core_distances_i::AbstractArray{BigFloat},
+        internal_core_distances_j::AbstractArray{BigFloat})
 
 
         separation = max.(distances, internal_core_distances_i, transpose(internal_core_distances_j))
@@ -224,7 +224,11 @@ module Dbcv
         noise_id::Integer = -1,
         check_duplicates::Bool = true,
         sep_threshold = 1e-9,
+        bits_of_precision = 256,
     )::AbstractFloat
+
+        setprecision(BigFloat, bits_of_precision)
+        sep_threshold::BigFloat = BigFloat(sep_threshold)
 
         n, d = size(Xo)
 
@@ -247,14 +251,11 @@ module Dbcv
 
         y = dense_ranking(y)
 
-        # forse meglio cambiare nome variabili per cluster_ids, ora è un rank non il vecchio cluster_id
-        # ma saranno i miei nuovi identificatori di posizione per i cluster, tolto il rumore
-
         cluster_ids = unique(y)
         num_clusters::Integer = length(cluster_ids)
         cluster_sizes =  [count(==(id), y) for id in cluster_ids]
 
-        distances = pair_to_pair_distances(X, metric=metric, threshold=sep_threshold, dup_check=check_duplicates)
+        distances::AbstractArray{BigFloat} = pair_to_pair_distances(X, metric=metric, threshold=sep_threshold, dup_check=check_duplicates)
 
         # DSC: 'Density Sparseness of a Cluster' init
         dscs = zeros(size(cluster_ids))
@@ -263,10 +264,10 @@ module Dbcv
         min_dspcs = fill(Inf, size(cluster_ids))
 
         # core distances of internal nodes
-        internal_objects_per_cluster = Vector{AbstractArray{<:Number}}(undef, num_clusters)
+        internal_objects_per_cluster = Vector{AbstractArray}(undef, num_clusters)
         # insert with internal_objects_per_cluster[key] = newvalue
 
-        internal_core_distances_per_cluster = Vector{AbstractArray}(undef, num_clusters)
+        internal_core_distances_per_cluster = Vector{AbstractArray{BigFloat}}(undef, num_clusters)
 
         cluster_indexes = [findall(y .== cls_id) for cls_id in cluster_ids]
 
