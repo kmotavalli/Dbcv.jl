@@ -202,12 +202,10 @@ module Dbcv
         end
 
         graph = SimpleWeightedGraphs.SimpleWeightedGraph(mrd)
-        #distmx = SimpleWeightedGraphs.weights(graph)
         
         n = size(mrd, 1)
         mst_matrix = zeros(eltype(mrd), n, n)
 
-        #mst_edges = Graphs.prim_mst(graph)
         if use_external_kruskal
             mst_edges = Graphs.kruskal_mst(graph)
             for edge in mst_edges
