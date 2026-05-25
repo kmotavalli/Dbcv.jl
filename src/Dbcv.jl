@@ -122,7 +122,78 @@ module Dbcv
         return vec(core_dists)
     end
 
-    function internal_objects(mutual_reach_distances::AbstractMatrix{BigFloat})
+    function prim_mt(graph::SimpleWeightedGraphs.SimpleWeightedGraph, start::Integer, size::Integer)
+        
+        arc_weights = SimpleWeightedGraphs.weights(graph)
+        
+        intree = zeros(Int, size)
+        dists = fill(Inf, size)
+        preds = collect(1:size)
+        edges = Vector{Tuple{Integer, Integer, eltype(arc_weights)}}(undef, size - 1)
+        
+        dists[start] = 0.0
+        v = start
+        cur_index = 0
+        next_v = -1
+        
+        nthreads = Threads.nthreads()
+        thread_best_dist = [Inf for _ in 1:nthreads]
+        thread_best_w    = [-1 for _ in 1:nthreads]
+        
+        while cur_index < size - 1
+            intree[v] = 1
+            fill!(thread_best_dist, Inf)
+            fill!(thread_best_w, -1)
+            
+            Threads.@threads for w in 1:size
+                if w == v || intree[w] == 1
+                    continue
+                end
+                
+                weight = arc_weights[v, w]
+                
+                if weight < dists[w]
+                    dists[w] = weight
+                    preds[w] = v
+                    new_dist = weight
+                else
+                    new_dist = dists[w]
+                end
+                
+                tid = Threads.threadid() - 1 #1 è sempre il master thread - testare in single thread
+                if new_dist < thread_best_dist[tid]
+                    thread_best_dist[tid] = new_dist
+                    thread_best_w[tid] = w
+                elseif new_dist == thread_best_dist[tid]
+                    if w < thread_best_w[tid]
+                        thread_best_w[tid] = w
+                    end
+                end
+            end
+            
+            dist = Inf
+            next_v = -1
+            for t in 1:nthreads
+                if thread_best_dist[t] < dist
+                    dist = thread_best_dist[t]
+                    next_v = thread_best_w[t]
+                elseif thread_best_dist[t] == dist
+                    if thread_best_w[t] < next_v
+                        next_v = thread_best_w[t]
+                    end
+                end
+            end
+            
+            cur_index += 1
+            edges[cur_index] = (preds[next_v], next_v, arc_weights[preds[next_v], next_v])
+            v = next_v
+        end
+                
+        return edges
+    end
+
+
+    function internal_objects(mutual_reach_distances::AbstractMatrix{BigFloat}, use_external_kruskal::Bool)
         
         mrd::AbstractArray{BigFloat} = (mutual_reach_distances + mutual_reach_distances') / 2
 
@@ -137,16 +208,25 @@ module Dbcv
         mst_matrix = zeros(eltype(mrd), n, n)
 
         #mst_edges = Graphs.prim_mst(graph)
-        mst_edges = Graphs.kruskal_mst(graph)
-
-
-        for edge in mst_edges
-            src, dest = Graphs.src(edge), Graphs.dst(edge)
-            #w = distmx[src, dest]
-            w = edge.weight
-            mst_matrix[src, dest] = w
-            mst_matrix[dest, src] = w
+        if use_external_kruskal
+            mst_edges = Graphs.kruskal_mst(graph)
+            for edge in mst_edges
+                src, dest = Graphs.src(edge), Graphs.dst(edge) #these are vertex ids, not floating point coordinates
+                w = edge.weight
+                mst_matrix[src, dest] = w
+                mst_matrix[dest, src] = w
+            end
+        else
+            mst_edges = prim_mt(graph, 1, n)
+            for edge in mst_edges
+                src = edge[1]
+                dest = edge[2]
+                w = edge[3]
+                mst_matrix[src, dest] = w
+                mst_matrix[dest, src] = w
+            end
         end
+
 
         internal_nodes_i = findall(vec(count(>(0.0), mst_matrix, dims=1)) .> 1)
         internal_weights = get_subarray(mst_matrix, internal_nodes_i, nothing)
@@ -187,10 +267,10 @@ module Dbcv
 
     function density_sparseness(cluster_inds::AbstractArray,
         distances::AbstractArray{BigFloat},
-        d::Integer)
+        d::Integer, use_external_kruskal::Bool)
 
         core_distances, mutual_reach_distances = mutual_reachability_distances(distances, d)
-        internal_node_inds, internal_edge_weights = internal_objects(mutual_reach_distances)
+        internal_node_inds, internal_edge_weights = internal_objects(mutual_reach_distances, use_external_kruskal)
 
         valid_weights = internal_edge_weights[isfinite.(internal_edge_weights)]
         cluster_density_sparseness = isempty(valid_weights) ? 0.0 : maximum(valid_weights)
@@ -225,6 +305,7 @@ module Dbcv
         check_duplicates::Bool = true,
         sep_threshold = 1e-9,
         bits_of_precision = 512,
+        use_libgraphs_kruskal::Bool = false,
     )::AbstractFloat
 
         setprecision(BigFloat, bits_of_precision)
@@ -279,7 +360,7 @@ module Dbcv
             dscs[i],
             internal_core_distances_per_cluster[i],
             internal_objects_per_cluster[i] =
-            density_sparseness(subcls_indexes, get_subarray(distances,subcls_indexes, nothing), d)
+            density_sparseness(subcls_indexes, get_subarray(distances,subcls_indexes, nothing), d, use_libgraphs_kruskal)
         end
 
         number_cluster_pairs::Integer = fld((num_clusters*(num_clusters - 1)), 2)

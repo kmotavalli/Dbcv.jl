@@ -7,6 +7,6 @@ dataset::AbstractArray = DelimitedFiles.readdlm(dataset_file, ',', BigFloat)
 
 clustering::AbstractArray = DelimitedFiles.readdlm(clustering_file, ',', Int)
 
-result::Real = Dbcv.dbcv(dataset, vec(clustering[:, 1]), use_libgraphs_kruskal=true)
+result::Real = Dbcv.dbcv(dataset, vec(clustering[:, 1]))
 
 print(result)
