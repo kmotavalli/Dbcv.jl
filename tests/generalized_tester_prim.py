@@ -86,7 +86,7 @@ def main():
 
     #dbcv score calculations across implementations
 
-	py_score = dbcv.dbcv(dataset, classification)
+	py_score = dbcv.dbcv(dataset, classification, use_original_mst_implementation=True)
 
 	print("\n[internal prim] DBCV score with the py felsiq implementation: " + str(py_score) + "\n")
 
