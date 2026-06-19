@@ -3,3 +3,5 @@ Pkg.add("Graphs")
 Pkg.add("SimpleWeightedGraphs")
 Pkg.add("Combinatorics")
 Pkg.add("Distances")
+Pkg.add("DataStructures")
+

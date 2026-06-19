@@ -1,6 +1,6 @@
 module Dbcv
 
-    import Graphs, SimpleWeightedGraphs, Combinatorics, Distances
+    import Graphs, SimpleWeightedGraphs, Combinatorics, Distances, DataStructures
     using Base.Threads
     import DelimitedFiles
 
@@ -128,41 +128,26 @@ module Dbcv
 
         explored::Vector{Integer} = []
         bool_explored::Vector{Bool} = fill(false, size)
-        unexplored::AbstractVector{Integer} = collect(1:size)
+        unexplored::DataStructures.PriorityQueue = DataStructures.PriorityQueue{Integer, BigFloat}()
         currentVertex::Integer = start
-        found::Bool = false
-        minW::BigFloat = +Inf
 
         cheapestCost[start] = 0.0
+        DataStructures.enqueue!(unexplored, start, 0.0)
 
         while !isempty(unexplored)
-            minW = +Inf
-            found = false
+            currentVertex = DataStructures.dequeue!(unexplored)
 
-            for v in unexplored
-                if cheapestCost[v] < minW
-                    minW = cheapestCost[v]
-                    currentVertex = v
+            push!(explored, currentVertex)
+            bool_explored[currentVertex] = true
 
-                    found = true
+            outgoing_edges = [SimpleWeightedGraphs.SimpleWeightedEdge(currentVertex, neighbor, graph.weights[currentVertex, neighbor]) for neighbor in Graphs.outneighbors(graph, currentVertex)]
+            for edge in outgoing_edges
+                if !bool_explored[edge.dst] && edge.weight < cheapestCost[edge.dst]
+                    cheapestCost[edge.dst] = edge.weight 
+                    cheapestEdge[edge.dst] = edge
+
+                    unexplored[edge.dst] = edge.weight
                 end
-            end
-
-            if found
-                pos = findfirst(x -> x == currentVertex, unexplored)
-                deleteat!(unexplored, pos)
-                push!(explored, currentVertex)
-                bool_explored[currentVertex] = true
-
-                outgoing_edges = [SimpleWeightedGraphs.SimpleWeightedEdge(currentVertex, neighbor, graph.weights[currentVertex, neighbor]) for neighbor in Graphs.outneighbors(graph, currentVertex)]
-                for edge in outgoing_edges
-                    if !bool_explored[edge.dst] && edge.weight < cheapestCost[edge.dst]
-                        cheapestCost[edge.dst] = edge.weight 
-                        cheapestEdge[edge.dst] = edge
-                    end
-                end
-            else
-                break
             end
         end
 
@@ -176,82 +161,6 @@ module Dbcv
 
         return resultEdges
     end
-
-
-
-
-
-
-    function prim_mt(graph::SimpleWeightedGraphs.SimpleWeightedGraph, start::Integer, size::Integer)
-        
-        arc_weights = SimpleWeightedGraphs.weights(graph)
-        
-        intree = zeros(Int, size)
-        dists = fill(Inf, size)
-        preds = collect(1:size)
-        edges = Vector{Tuple{Integer, Integer, eltype(arc_weights)}}(undef, size - 1)
-        
-        dists[start] = 0.0
-        v = start
-        cur_index = 0
-        next_v = -1
-        
-        nthreads = Threads.nthreads()
-        thread_best_dist = [Inf for _ in 1:nthreads]
-        thread_best_w    = [-1 for _ in 1:nthreads]
-        
-        while cur_index < size - 1
-            intree[v] = 1
-            fill!(thread_best_dist, Inf)
-            fill!(thread_best_w, -1)
-            
-            Threads.@threads for w in 1:size
-                if w == v || intree[w] == 1
-                    continue
-                end
-                
-                weight = arc_weights[v, w]
-                
-                if weight < dists[w]
-                    dists[w] = weight
-                    preds[w] = v
-                    new_dist = weight
-                else
-                    new_dist = dists[w]
-                end
-                
-                tid = Threads.threadid() - 1 #1 è sempre il master thread - testare in single thread
-                if new_dist < thread_best_dist[tid]
-                    thread_best_dist[tid] = new_dist
-                    thread_best_w[tid] = w
-                elseif new_dist == thread_best_dist[tid]
-                    if w < thread_best_w[tid]
-                        thread_best_w[tid] = w
-                    end
-                end
-            end
-            
-            dist = Inf
-            next_v = -1
-            for t in 1:nthreads
-                if thread_best_dist[t] < dist
-                    dist = thread_best_dist[t]
-                    next_v = thread_best_w[t]
-                elseif thread_best_dist[t] == dist
-                    if thread_best_w[t] < next_v
-                        next_v = thread_best_w[t]
-                    end
-                end
-            end
-            
-            cur_index += 1
-            edges[cur_index] = (preds[next_v], next_v, arc_weights[preds[next_v], next_v])
-            v = next_v
-        end
-                
-        return edges
-    end
-
 
     function internal_objects(mutual_reach_distances::AbstractMatrix{BigFloat}, use_external_kruskal::Bool)
         
