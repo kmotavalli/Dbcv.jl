@@ -121,6 +121,70 @@ module Dbcv
 
         return vec(core_dists)
     end
+    function prim_st(graph::SimpleWeightedGraphs.SimpleWeightedGraph, start::Integer, size::Integer)
+        
+        cheapestCost::Vector{BigFloat} = fill(Inf, size)
+        cheapestEdge::Vector{Union{SimpleWeightedGraphs.SimpleWeightedEdge,Nothing}} = fill(nothing, size)
+
+        explored::Vector{Integer} = []
+        bool_explored::Vector{Bool} = fill(false, size)
+        unexplored::AbstractVector{Integer} = collect(1:size)
+        currentVertex::Integer = start
+        found::Bool = false
+        minW::BigFloat = +Inf
+        startFrom::Integer = start
+
+
+        cheapestCost[start] = 0.0
+
+        while !isempty(unexplored)
+            minW = +Inf
+            found = false;
+            while !found
+                slice = @view cheapestCost[startFrom:end]
+                if !isempty(slice)
+                    currentVertex = argmin(slice)
+                    if !bool_explored[currentVertex]
+                        found = true
+                    else
+                        startFrom = startFrom + 1
+                    end
+                else
+                    break
+                end
+            end
+
+            if found
+                pos = findfirst(x -> x == currentVertex, unexplored)
+                deleteat!(unexplored, pos)
+                push!(explored, currentVertex)
+                bool_explored[currentVertex] = true
+
+                outgoing_edges = [SimpleWeightedGraphs.SimpleWeightedEdge(currentVertex, neighbor, graph.weights[currentVertex, neighbor]) for neighbor in Graphs.outneighbors(graph, currentVertex)]
+                for edge in outgoing_edges
+                    if findfirst(x -> x == edge.dst, unexplored) != nothing && edge.weight < cheapestCost[edge.dst]
+                        cheapestCost[edge.dst] = edge.weight 
+                        cheapestEdge[edge.dst] = edge
+                    end
+                end
+            end
+        end
+
+        resultEdges::Vector{Vector{Integer, Integer, BigFloat}} = []
+        for vertex in collect(1:size)
+            if cheapestEdge[vertex] !== nothing
+                edge = cheapestEdge[vertex]
+                push!(resultEdges, [edge.src, edge.dst, edge.weight])
+            end
+        end
+
+        return resultEdges
+    end
+
+
+
+
+
 
     function prim_mt(graph::SimpleWeightedGraphs.SimpleWeightedGraph, start::Integer, size::Integer)
         
@@ -215,7 +279,7 @@ module Dbcv
                 mst_matrix[dest, src] = w
             end
         else
-            mst_edges = prim_mt(graph, 1, n)
+            mst_edges = prim_st(graph, 1, n)
             for edge in mst_edges
                 src = edge[1]
                 dest = edge[2]
