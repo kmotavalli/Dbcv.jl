@@ -132,25 +132,19 @@ module Dbcv
         currentVertex::Integer = start
         found::Bool = false
         minW::BigFloat = +Inf
-        startFrom::Integer = start
-
 
         cheapestCost[start] = 0.0
 
         while !isempty(unexplored)
             minW = +Inf
-            found = false;
-            while !found
-                slice = @view cheapestCost[startFrom:end]
-                if !isempty(slice)
-                    currentVertex = argmin(slice)
-                    if !bool_explored[currentVertex]
-                        found = true
-                    else
-                        startFrom = startFrom + 1
-                    end
-                else
-                    break
+            found = false
+
+            for v in unexplored
+                if cheapestCost[v] < minW
+                    minW = cheapestCost[v]
+                    currentVertex = v
+
+                    found = true
                 end
             end
 
@@ -162,19 +156,21 @@ module Dbcv
 
                 outgoing_edges = [SimpleWeightedGraphs.SimpleWeightedEdge(currentVertex, neighbor, graph.weights[currentVertex, neighbor]) for neighbor in Graphs.outneighbors(graph, currentVertex)]
                 for edge in outgoing_edges
-                    if findfirst(x -> x == edge.dst, unexplored) != nothing && edge.weight < cheapestCost[edge.dst]
+                    if !bool_explored[edge.dst] && edge.weight < cheapestCost[edge.dst]
                         cheapestCost[edge.dst] = edge.weight 
                         cheapestEdge[edge.dst] = edge
                     end
                 end
+            else
+                break
             end
         end
 
-        resultEdges::Vector{Vector{Integer, Integer, BigFloat}} = []
+        resultEdges::Vector{Tuple{Integer, Integer, BigFloat}} = []
         for vertex in collect(1:size)
             if cheapestEdge[vertex] !== nothing
                 edge = cheapestEdge[vertex]
-                push!(resultEdges, [edge.src, edge.dst, edge.weight])
+                push!(resultEdges, (edge.src, edge.dst, edge.weight))
             end
         end
 
