@@ -64,7 +64,7 @@ test_parameters = [
 	(
 		"low_rank_matrix",
 		{
-			"n_features": random.randrange(10),
+			"n_features": random.randrange(1,10),
 		}
 	),
 	(
