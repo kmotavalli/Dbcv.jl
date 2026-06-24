@@ -13,6 +13,7 @@ def main():
 	ncores = multiprocessing.cpu_count()
 	is_medical = False
 	test_scripts_dir = os.path.dirname(os.path.abspath(getsourcefile(lambda:0)))
+	results_file = ""
 
 
 	tstringdir = str(now.tm_year) + "-" + str(now.tm_mon) + "-" + str(now.tm_mday)
@@ -82,10 +83,12 @@ def main():
 		dataset_path = args.testname
 		dir_path = os.path.join(test_scripts_dir, "..", "data", "tests", "prim", "medical_" + os.path.basename(args.testname).split(".csv")[0] + "_" + tstringdir)
 		classification_path = os.path.join(dir_path, os.path.basename(args.testname).split(".csv")[0] + "_classification_" + tstringfile + ".csv")
+		results_file = os.path.join(dir_path, os.path.basename(args.testname).split(".csv")[0] + "_result_ " + tstringfile + ".txt")
 	else:
 		dir_path = os.path.join(test_scripts_dir, "..", "data", "tests", "prim", args.testname + "_" + tstringdir)
 		dataset_path = os.path.join(dir_path , args.testname + "_dataset_"  + tstringfile + ".csv")
 		classification_path = os.path.join(dir_path, args.testname + "_classification_" + tstringfile + ".csv")
+		results_file = os.path.join(dir_path, args.testname + "_result_ " + tstringfile + ".txt")
 
 
 	try:
@@ -122,9 +125,9 @@ def main():
 
 	difference = py_score - julia_score
 
-	print("Difference: " + str(difference) + "\nSaving on " + os.path.join(dir_path, args.testname + "_result_" + tstringfile + ".txt") + "\n")
+	print("Difference: " + str(difference) + "\nSaving on " + results_file + "\n")
 
-	with open(os.path.join(dir_path, args.testname + "_result_ " + tstringfile + ".txt"), 'w') as out:
+	with open(results_file, 'w') as out:
 		out.write("DBCV Scores for " + args.testname + "_dataset_" + tstringfile + ".csv\n")
 		out.write("Python [prim]:  " + str(py_score) + "\n")
 		out.write("Julia [prim]:" + str(julia_score) + "\n\n")
