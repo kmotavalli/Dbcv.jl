@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
-import subprocess, random
+import subprocess, random, os
+from inspect import getsourcefile
 
-subprocess.run(["julia", "./InstallDeps.jl"])
+subprocess.run(["julia", "InstallDeps.jl"])
+
+test_scripts_dir = os.path.dirname(os.path.abspath(getsourcefile(lambda:0)))
 
 default_params = {
 	"samples": 500,
@@ -33,14 +36,14 @@ test_parameters = [
 		"biclusters",
 		{
 			"shape": (800, 800),
-			"n_clusters": random.randrange(80),
+			"n_clusters": random.randrange(1,80),
 		}
 	),
 	(
 		"checkerboard",
 		{
 			"shape": (800, 800),
-			"n_clusters": random.randrange(80),
+			"n_clusters": random.randrange(1,80),
 		}
 	),
 	(
@@ -94,6 +97,12 @@ test_parameters = [
 	(
 		"swiss_roll",
 	),
+	(
+		"medical",
+		{
+		"eps": 1,
+		},
+	),
 ]
 
 for (testname, *custom_params) in test_parameters:
@@ -102,16 +111,24 @@ for (testname, *custom_params) in test_parameters:
 		params.update(custom_params[0])
 	match testname:
 		case "low_rank_matrix":
-			subprocess.run(["python3", "./generalized_tester.py", "--testname", testname, "--numsamples", str(params["samples"]),
+			subprocess.run(["python3", os.path.join(test_scripts_dir, "generalized_tester.py"), "--testname", testname, "--numsamples", str(params["samples"]),
 				"--eps", str(params["eps"]), "--n_features", str(params["n_features"])])
 		case "biclusters" | "checkerboard":
-			subprocess.run(["python3", "./generalized_tester.py", "--testname", testname, "--shape", str(params["shape"][0]), str(params["shape"][1]), "--n_clusters", str(params["n_clusters"]), "--numsamples", str(params["samples"]),
+			subprocess.run(["python3", os.path.join(test_scripts_dir, "generalized_tester.py"), "--testname", testname, "--shape", str(params["shape"][0]), str(params["shape"][1]), "--n_clusters", str(params["n_clusters"]), "--numsamples", str(params["samples"]),
 				"--seed", str(params["seed"]), "--noiselevel", str(params["noise"]), "--eps", str(params["eps"]), "--factor", str(params["factor"])])
+		case "medical":
+			csv_dir = os.path.join(os.path.dirname(test_scripts_dir), "data")
+			files = os.listdir(csv_dir)
+			csv_files = filter(lambda x:x.endswith((".csv")), files)
+			for csv_file in csv_files:
+				subprocess.run(["python3", os.path.join(test_scripts_dir, "generalized_tester.py"), "--testname", os.path.join(csv_dir, csv_file), "--eps", str(params["eps"]) ])
+
+			
 		case _:
 			if params["n_dim"] is not None:
-				subprocess.run(["python3", "./generalized_tester.py", "--testname", testname, "--numsamples", str(params["samples"]),
+				subprocess.run(["python3", os.path.join(test_scripts_dir, "generalized_tester.py"), "--testname", testname, "--numsamples", str(params["samples"]),
 					"--seed", str(params["seed"]),  "--n_features", str(params["n_features"]), "--noiselevel", str(params["noise"]), "--n_dim", str(params["n_dim"]), "--eps", str(params["eps"]), "--factor", str(params["factor"])])
 			else:
-				subprocess.run(["python3", "./generalized_tester.py", "--testname", testname, "--numsamples", str(params["samples"]),
+				subprocess.run(["python3", os.path.join(test_scripts_dir, "generalized_tester.py"), "--testname", testname, "--numsamples", str(params["samples"]),
 					"--seed", str(params["seed"]),  "--n_features", str(params["n_features"]), "--noiselevel", str(params["noise"]), "--eps", str(params["eps"]), "--factor", str(params["factor"])])
 

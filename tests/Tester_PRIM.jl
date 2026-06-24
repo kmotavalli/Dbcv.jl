@@ -1,15 +1,16 @@
-push!(LOAD_PATH, "../src")
+push!(LOAD_PATH, joinpath(@__DIR__, "..", "src"))
 import Dbcv, DelimitedFiles
 
 has_header::Integer = 0
 dataset::AbstractArray = []
+
 dataset_file::String, clustering_file::String = ARGS
 
-if size(ARGS, 1) == 3
-    has_headers = ARGS[3]
+if length(ARGS) == 3
+    has_header = parse(Int, ARGS[3])
 end
 
-if has_header != nothing && has_header == 1
+if has_header > 0
     dataset = DelimitedFiles.readdlm(dataset_file, ',', BigFloat, skipstart=1)
 else
     dataset = DelimitedFiles.readdlm(dataset_file, ',', BigFloat)
