@@ -6,7 +6,7 @@ import numpy as np
 
 #richiede installazione sklearn e numpy
 import felsiq_dbcv as dbcv #felsiq implementation
-from sklearn import cluster, datasets
+from sklearn import cluster, datasets, preprocessing
 
 def main():
 	now = time.localtime()
@@ -36,7 +36,9 @@ def main():
 
 
 	if args.testname.endswith(".csv") and os.path.exists(args.testname):
-		dataset = np.loadtxt(args.testname , skiprows=1, delimiter= ",")
+		tempload = np.loadtxt(args.testname , skiprows=1, delimiter= ",")
+		scaler_inst = preprocessing.StandardScaler()
+		dataset = scaler_inst.fit_transform(tempload)
 		is_medical = True
 		print("Running test for dataset " + str(args.testname))
 		print("ARGS: " + str(args))

@@ -100,7 +100,7 @@ test_parameters = [
 	(
 		"medical",
 		{
-		"eps": 5,
+		"eps": 3,
 		},
 	),
 ]
