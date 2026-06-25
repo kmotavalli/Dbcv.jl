@@ -3,7 +3,6 @@ import Dbcv, DelimitedFiles
 
 has_header::Integer = 0
 dataset::AbstractArray = []
-
 dataset_file::String, clustering_file::String = ARGS
 
 if length(ARGS) == 3
@@ -15,6 +14,7 @@ if has_header > 0
 else
     dataset = DelimitedFiles.readdlm(dataset_file, ',', BigFloat)
 end
+
 clustering::AbstractArray = DelimitedFiles.readdlm(clustering_file, ',', Int)
 
 result::Real = Dbcv.dbcv(dataset, vec(clustering[:, 1]))

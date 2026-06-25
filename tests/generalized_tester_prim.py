@@ -86,7 +86,7 @@ def main():
 		dir_path = os.path.join(test_scripts_dir, "..", "data", "tests", "prim", "medical_" + os.path.basename(args.testname).split(".csv")[0] + "_" + tstringdir)
 		classification_path = os.path.join(dir_path, os.path.basename(args.testname).split(".csv")[0] + "_classification_" + tstringfile + ".csv")
 		results_file = os.path.join(dir_path, os.path.basename(args.testname).split(".csv")[0] + "_result_ " + tstringfile + ".txt")
-		normalized_ds_path = os.path.join(dir_path, os.path.basename(args.testname).split(".csv")[0] + "_normalizeddataset_ " + tstringfile + ".txt")
+		normalized_ds_path = os.path.join(dir_path, os.path.basename(args.testname).split(".csv")[0] + "_normalizeddataset_" + tstringfile + ".csv")
 		np.savetxt(normalized_ds_path, dataset, delimiter=",")
 	else:
 		dir_path = os.path.join(test_scripts_dir, "..", "data", "tests", "prim", args.testname + "_" + tstringdir)
@@ -132,7 +132,7 @@ def main():
 	print("Difference: " + str(difference) + "\nSaving on " + results_file + "\n")
 
 	with open(results_file, 'w') as out:
-		out.write("DBCV Scores for " + args.testname + "_dataset_" + tstringfile + ".csv\n")
+		out.write("DBCV Scores for " + dataset_path + "\n")
 		out.write("Python [prim]:  " + str(py_score) + "\n")
 		out.write("Julia [prim]:" + str(julia_score) + "\n\n")
 		out.write("Difference: " + str (difference) + "\n")
