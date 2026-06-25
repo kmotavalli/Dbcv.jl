@@ -87,6 +87,9 @@ def main():
 		dir_path = os.path.join(test_scripts_dir, "..", "data", "tests", "medical_" + os.path.basename(args.testname).split(".csv")[0] + "_" + tstringdir)
 		classification_path = os.path.join(dir_path, os.path.basename(args.testname).split(".csv")[0] + "_classification_" + tstringfile + ".csv")
 		results_file = os.path.join(dir_path, os.path.basename(args.testname).split(".csv")[0] + "_result_ " + tstringfile + ".txt")
+		normalized_ds_path = os.path.join(dir_path, os.path.basename(args.testname).split(".csv")[0] + "_normalizeddataset_ " + tstringfile + ".txt")
+		np.savetxt(normalized_ds_path, dataset, delimiter=",")
+
 	else:
 		dir_path = os.path.join(test_scripts_dir, "..", "data", "tests", args.testname + "_" + tstringdir)
 		dataset_path = os.path.join(dir_path , args.testname + "_dataset_"  + tstringfile + ".csv")
@@ -116,7 +119,7 @@ def main():
 	print("\nDBCV score with the py felsiq implementation: " + str(py_score) + "\n")
 
 	if is_medical:
-		output = subprocess.run(["julia", f'-t {ncores}', os.path.join(test_scripts_dir, "Tester.jl"), dataset_path, classification_path, str(1)], stdout = subprocess.PIPE, universal_newlines = True)
+		output = subprocess.run(["julia", f'-t {ncores}', os.path.join(test_scripts_dir, "Tester.jl"), normalized_ds_path, classification_path], stdout = subprocess.PIPE, universal_newlines = True)
 	else:
 		output = subprocess.run(["julia", f'-t {ncores}', os.path.join(test_scripts_dir, "Tester.jl"),  dataset_path, classification_path], stdout = subprocess.PIPE, universal_newlines = True)
 
