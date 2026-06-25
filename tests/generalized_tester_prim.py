@@ -87,7 +87,7 @@ def main():
 		classification_path = os.path.join(dir_path, os.path.basename(args.testname).split(".csv")[0] + "_classification_" + tstringfile + ".csv")
 		results_file = os.path.join(dir_path, os.path.basename(args.testname).split(".csv")[0] + "_result_ " + tstringfile + ".txt")
 		normalized_ds_path = os.path.join(dir_path, os.path.basename(args.testname).split(".csv")[0] + "_normalizeddataset_" + tstringfile + ".csv")
-		np.savetxt(normalized_ds_path, dataset, delimiter=",")
+		
 	else:
 		dir_path = os.path.join(test_scripts_dir, "..", "data", "tests", "prim", args.testname + "_" + tstringdir)
 		dataset_path = os.path.join(dir_path , args.testname + "_dataset_"  + tstringfile + ".csv")
@@ -102,6 +102,8 @@ def main():
 
 	if not is_medical:
 		np.savetxt(dataset_path , dataset, delimiter= ",")
+	else:
+		np.savetxt(normalized_ds_path, dataset, delimiter=",")
 
 	dbscan = cluster.DBSCAN(eps=args.eps).fit(dataset)
 	classification = np.array(dbscan.labels_, dtype=np.int32)
