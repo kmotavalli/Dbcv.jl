@@ -360,7 +360,7 @@ module Dbcv
 
         base::AbstractFloat = sep_threshold/1e-3
 
-        vcs::AbstractArray = (min_dspcs .- dscs) ./ (base .+ max.(min_dspcs, dscs))
+        vcs::AbstractArray = (min_dspcs .- dscs) ./ (1e-12 .+ max.(min_dspcs, dscs))
 
         # verificare se necessario equivalente di np.nan_to_num(vcs, copy=False, nan=0.0)
 
