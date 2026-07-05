@@ -54,7 +54,7 @@ module Dbcv
             return nothing
         end
 
-        tolerance = threshold / 1e-3
+        tolerance::BigFloat = threshold / 1e-3
         distances = Matrix{BigFloat}(undef, x_size, x_size)
         metric_instance = try
         	metric_sym = Symbol(metric)
@@ -273,6 +273,7 @@ module Dbcv
         sep_threshold = 1e-9,
         bits_of_precision = 512,
         use_libgraphs_kruskal::Bool = false,
+        felsiq_bugforbug::Bool = true,
     )::AbstractFloat
 
         setprecision(BigFloat, bits_of_precision)
@@ -319,9 +320,6 @@ module Dbcv
 
         cluster_indexes = [findall(y .== cls_id) for cls_id in cluster_ids]
 
-        #scegliere implementazione migliore multithreading
-        #e divisione in sottomatrici/sottoproblemi
-
         Threads.@threads for i in eachindex(cluster_ids)
             subcls_indexes = cluster_indexes[i]
             dscs[i],
@@ -351,18 +349,22 @@ module Dbcv
             end
         end
 
-        # verificare se necessario equivalente di np.nan_to_num(min_dspcs, copy=False, posinf=1e12)
+        # equivalent to np.nan_to_num(min_dspcs, copy=False, posinf=1e12)
 
         clamp!(min_dspcs, sep_threshold, 1e12)
 
         #alternativa esattamente come py
         #replace!(min_dspcs, Inf => 1e12)
 
-        base::AbstractFloat = sep_threshold/1e-3
+        base::BigFloat = sep_threshold/1e-3
+        vcs::AbstractArray = []
+        if felsiq_bugforbug
+            vcs = (min_dspcs .- dscs) ./ (1e-12 .+ max.(min_dspcs, dscs))
+        else
+            vcs = (min_dspcs .- dscs) ./ (base .+ max.(min_dspcs, dscs))
+        end
 
-        vcs::AbstractArray = (min_dspcs .- dscs) ./ (1e-12 .+ max.(min_dspcs, dscs))
-
-        # verificare se necessario equivalente di np.nan_to_num(vcs, copy=False, nan=0.0)
+        # equivalent to np.nan_to_num(vcs, copy=False, nan=0.0)
 
         replace!(vcs, NaN => 0.0)
 
