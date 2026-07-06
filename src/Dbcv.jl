@@ -232,6 +232,7 @@ module Dbcv
         return arr[inds_a, actual_inds_b]
     end
 
+
     function density_sparseness(cluster_inds::AbstractArray,
         distances::AbstractArray{BigFloat},
         d::Integer, use_external_kruskal::Bool)
@@ -273,10 +274,13 @@ module Dbcv
         sep_threshold = 1e-9,
         bits_of_precision = 512,
         use_libgraphs_kruskal::Bool = false,
-        felsiq_bugforbug::Bool = true,
+        felsiq_bugforbug::Bool = false,
     )::AbstractFloat
 
         setprecision(BigFloat, bits_of_precision)
+        if sep_threshold <= 0
+            throw(ArgumentError("sep_threshold must be positive"))
+        end
         sep_threshold::BigFloat = BigFloat(sep_threshold)
 
         n, d = size(Xo)
@@ -353,10 +357,7 @@ module Dbcv
 
         clamp!(min_dspcs, sep_threshold, 1e12)
 
-        #alternativa esattamente come py
-        #replace!(min_dspcs, Inf => 1e12)
-
-        base::BigFloat = sep_threshold/1e-3
+        base::BigFloat = sep_threshold/1000
         vcs::AbstractArray = []
         if felsiq_bugforbug
             vcs = (min_dspcs .- dscs) ./ (1e-12 .+ max.(min_dspcs, dscs))
