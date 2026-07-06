@@ -54,7 +54,7 @@ module Dbcv
             return nothing
         end
 
-        tolerance::BigFloat = threshold / 1e-3
+        tolerance::BigFloat = threshold / 1000
         distances = Matrix{BigFloat}(undef, x_size, x_size)
         metric_instance = try
         	metric_sym = Symbol(metric)
