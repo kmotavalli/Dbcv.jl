@@ -101,7 +101,8 @@ def main():
 		print(dir_path + " already exists, saving there")
 
 	if not is_medical:
-		np.savetxt(dataset_path , dataset, delimiter= ",")
+		np.savetxt(dataset_path, dataset, delimiter=",")
+		#dataset = np.loadtxt(dataset_path, delimiter=",")
 	else:
 		np.savetxt(normalized_ds_path, dataset, delimiter=",")
 
@@ -136,7 +137,7 @@ def main():
 	with open(results_file, 'w') as out:
 		out.write("DBCV Scores for " + dataset_path + "\n")
 		out.write("Python [prim]:  " + str(py_score) + "\n")
-		out.write("Julia [prim]:" + str(julia_score) + "\n\n")
+		out.write("Julia  [prim]:  " + str(julia_score) + "\n\n")
 		out.write("Difference: " + str (difference) + "\n")
 		out.close()
 

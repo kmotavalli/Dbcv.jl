@@ -137,7 +137,7 @@ def main():
 	with open(results_file, 'w') as out:
 		out.write("DBCV Scores for " + dataset_path + "\n")
 		out.write("Python:  " + str(py_score) + "\n")
-		out.write("Julia:" + str(julia_score) + "\n\n")
+		out.write("Julia :  " + str(julia_score) + "\n\n")
 		out.write("Difference: " + str (difference) + "\n")
 		out.close()
 
