@@ -1,0 +1,5 @@
+DBCV Scores for /home/kappa/dev/dbcv/tests/../data/tests/low_rank_matrix_2026-7-7/low_rank_matrix_dataset_2026-7-7_253.csv
+Python:  0.9999999999999807
+Julia :  0.9999999999999855
+
+Difference: -4.773959005888173e-15
