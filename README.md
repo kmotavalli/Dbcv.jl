@@ -59,12 +59,14 @@ import Dbcv
 import Dbcv in your Julia sources via
 
 ```julia
-import Dbcv```
+import Dbcv
+```
 
 then invoke Dbcv.dbcv passing it a dataset and a classification in clusters of that dataset.
 
 ```julia
-result = Dbcv.dbcv(dataset, classification)```
+result = Dbcv.dbcv(dataset, classification)
+```
 
 the two must already be in memory (bound to a variable). The classification vector must only include the classification of the points, in the same order they appear in the dataset, to a cluster id. The dataset must not be repeated in the classification variable. If it is, you can extract with a view from your classification matrix, containing only the column with the cluster ids for the original data. If files have to be read first, eg, from csv files, you have to read them into memory before calling Dbcv.dbcv, for example via the Julia package DelimitedFiles.
 
