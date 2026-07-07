@@ -117,8 +117,6 @@ module Dbcv
         n = size(distances, 1)
         core_dists = (sum(distances .^ -d, dims=ndims(distances)) ./ (n - 1)) .^ (-1.0 / d)
 
-        #manca filtraggio/clamping inverso
-
         return vec(core_dists)
     end
     function prim_st(graph::SimpleWeightedGraphs.SimpleWeightedGraph, start::Integer, size::Integer)
