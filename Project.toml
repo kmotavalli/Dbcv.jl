@@ -1,10 +1,8 @@
-Name = "Dbcv"
-#via UUIDs.uuid4()
+name = "Dbcv"
 uuid = "12d5b8d3-741a-4b7f-ac2a-a24bdbdeca62"
-version = "0.1.1"
-authors = ["Keivan Motavalli"]
+authors = ["Keivan Motavalli <keivan@motavalli.me>"]
+version = "1.0.0"
 license = "MIT"
-
 
 [deps]
 
@@ -13,3 +11,12 @@ SimpleWeightedGraphs = "47aef6b3-ad0c-573a-a1e2-d07658019622"
 Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
 Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+
+[compat]
+julia = "1.10.10"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
