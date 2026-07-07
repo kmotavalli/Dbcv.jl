@@ -1,5 +1,0 @@
-DBCV Scores for /home/kappa/dev/dbcv/tests/../data/tests/moons_2026-7-7/moons_dataset_2026-7-7_252.csv
-Python:  0.8482435649498906
-Julia :  0.8482435649498906
-
-Difference: 0.0

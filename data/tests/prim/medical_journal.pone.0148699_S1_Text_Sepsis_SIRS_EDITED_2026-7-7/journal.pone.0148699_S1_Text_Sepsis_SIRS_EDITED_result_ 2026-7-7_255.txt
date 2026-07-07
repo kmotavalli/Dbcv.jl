@@ -1,5 +1,0 @@
-DBCV Scores for /home/kappa/dev/dbcv/data/journal.pone.0148699_S1_Text_Sepsis_SIRS_EDITED.csv
-Python [prim]:  0.24841721951563897
-Julia  [prim]:  0.248417219515639
-
-Difference: -2.7755575615628914e-17
