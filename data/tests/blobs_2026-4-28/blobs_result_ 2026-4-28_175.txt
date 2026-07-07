@@ -1,5 +1,0 @@
-DBCV Scores for blobs_dataset_2026-4-28_175.csv
-Python: 0.15367466636174737
-Julia: -0.4205636194289136
-
-Difference: 0.5742382857906609

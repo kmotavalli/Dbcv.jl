@@ -1,5 +1,0 @@
-DBCV Scores for circles_dataset_2026-4-28_175.csv
-Python: 0.7490343190171268
-Julia: 0.7490280917638059
-
-Difference: 6.227253320889581e-06
