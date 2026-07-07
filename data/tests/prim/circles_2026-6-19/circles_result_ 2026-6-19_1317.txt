@@ -1,5 +1,0 @@
-DBCV Scores for circles_dataset_2026-6-19_1317.csv
-Python [prim]:  0.7970768292880908
-Julia [prim mt]:0.797070202623329
-
-Difference: 6.62666476181073e-06

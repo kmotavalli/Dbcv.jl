@@ -1,5 +1,0 @@
-DBCV Scores for /home/kappa/dev/dbcv/tests/../data/tests/prim/moons_2026-6-25/moons_dataset_2026-6-25_1258.csv
-Python [prim]:  0.8942038951824273
-Julia [prim]:0.8941998276339459
-
-Difference: 4.067548481367922e-06

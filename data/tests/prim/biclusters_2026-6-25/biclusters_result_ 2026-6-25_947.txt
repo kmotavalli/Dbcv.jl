@@ -1,5 +1,0 @@
-DBCV Scores for /home/kappa/dev/dbcv/tests/../data/tests/prim/biclusters_2026-6-25/biclusters_dataset_2026-6-25_947.csv
-Python [prim]:  0.0
-Julia [prim]:0.0
-
-Difference: 0.0

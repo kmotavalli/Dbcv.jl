@@ -1,5 +1,0 @@
-DBCV Scores for /home/kappa/dev/dbcv/tests/../data/tests/friedman2_2026-7-6/friedman2_dataset_2026-7-6_1630.csv
-Python:  0.0
-Julia:0.0
-
-Difference: 0.0

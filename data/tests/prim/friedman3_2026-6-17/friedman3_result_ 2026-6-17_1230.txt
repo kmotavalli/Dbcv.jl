@@ -1,5 +1,0 @@
-DBCV Scores for friedman3_dataset_2026-6-17_1230.csv
-Python [prim]:  0.0
-Julia [prim mt]:0.0
-
-Difference: 0.0

@@ -1,5 +1,0 @@
-DBCV Scores for hastie_10_2_dataset_2026-6-19_1316.csv
-Python [prim]:  0.0
-Julia [prim mt]:0.0
-
-Difference: 0.0

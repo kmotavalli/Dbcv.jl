@@ -1,5 +1,0 @@
-DBCV Scores for s_curve_dataset_2026-6-19_1230.csv
-Python [prim]:  0.16017731494092788
-Julia [prim mt]:0.16017640848142004
-
-Difference: 9.064595078434046e-07

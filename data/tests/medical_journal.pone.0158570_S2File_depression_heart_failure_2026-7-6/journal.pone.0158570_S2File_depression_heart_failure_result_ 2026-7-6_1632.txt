@@ -1,5 +1,0 @@
-DBCV Scores for /home/kappa/dev/dbcv/data/journal.pone.0158570_S2File_depression_heart_failure.csv
-Python:  0.8117647058739319
-Julia:0.811764705873932
-
-Difference: -1.1102230246251565e-16

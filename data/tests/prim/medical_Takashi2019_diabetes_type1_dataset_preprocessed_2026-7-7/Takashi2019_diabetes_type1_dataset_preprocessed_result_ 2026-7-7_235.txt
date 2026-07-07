@@ -1,5 +1,0 @@
-DBCV Scores for /home/kappa/dev/dbcv/data/Takashi2019_diabetes_type1_dataset_preprocessed.csv
-Python [prim]:  0.4179104477574948
-Julia [prim]:0.4179104477574948
-
-Difference: 0.0

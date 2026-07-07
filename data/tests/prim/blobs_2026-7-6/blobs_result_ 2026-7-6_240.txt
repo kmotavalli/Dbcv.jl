@@ -1,5 +1,0 @@
-DBCV Scores for /home/kappa/dev/dbcv/tests/../data/tests/prim/blobs_2026-7-6/blobs_dataset_2026-7-6_240.csv
-Python [prim]:  0.26728916262020086
-Julia [prim]:0.26728916262020086
-
-Difference: 0.0
