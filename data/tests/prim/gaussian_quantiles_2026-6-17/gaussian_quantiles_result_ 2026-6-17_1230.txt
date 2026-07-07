@@ -1,0 +1,5 @@
+DBCV Scores for gaussian_quantiles_dataset_2026-6-17_1230.csv
+Python [prim]:  -0.44166586883931996
+Julia [prim mt]:-0.6092350472717701
+
+Difference: 0.16756917843245017

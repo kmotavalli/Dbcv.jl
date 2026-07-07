@@ -1,0 +1,5 @@
+DBCV Scores for moons_dataset_2026-6-19_1228.csv
+Python [prim]:  0.8929955751639175
+Julia [prim mt]:0.8929911033112876
+
+Difference: 4.471852629861495e-06

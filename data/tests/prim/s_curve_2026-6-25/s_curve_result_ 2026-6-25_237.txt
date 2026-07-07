@@ -1,0 +1,5 @@
+DBCV Scores for /home/kappa/dev/dbcv/tests/../data/tests/prim/s_curve_2026-6-25/s_curve_dataset_2026-6-25_237.csv
+Python [prim]:  0.16017731494092788
+Julia [prim]:0.16017640848142004
+
+Difference: 9.064595078434046e-07

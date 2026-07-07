@@ -1,0 +1,5 @@
+DBCV Scores for sparse_coded_signal_dataset_2026-6-17_1231.csv
+Python [prim]:  0.13109680747564129
+Julia [prim mt]:0.026167641610413683
+
+Difference: 0.1049291658652276

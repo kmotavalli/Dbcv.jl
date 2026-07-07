@@ -1,0 +1,5 @@
+DBCV Scores for blobs_dataset_2026-6-19_1228.csv
+Python [prim]:  0.26728916262020086
+Julia [prim mt]:0.2672879358745335
+
+Difference: 1.226745667382012e-06

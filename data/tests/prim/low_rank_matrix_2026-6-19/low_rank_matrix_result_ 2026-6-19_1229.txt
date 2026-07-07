@@ -1,0 +1,5 @@
+DBCV Scores for low_rank_matrix_dataset_2026-6-19_1229.csv
+Python [prim]:  0.9999999999999807
+Julia [prim mt]:0.9999999999999926
+
+Difference: -1.1879386363489175e-14

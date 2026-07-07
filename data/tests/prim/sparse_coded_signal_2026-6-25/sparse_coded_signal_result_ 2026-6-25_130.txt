@@ -1,0 +1,5 @@
+DBCV Scores for /home/kappa/dev/dbcv/tests/../data/tests/prim/sparse_coded_signal_2026-6-25/sparse_coded_signal_dataset_2026-6-25_130.csv
+Python [prim]:  0.13109680747564129
+Julia [prim]:0.1310960045584964
+
+Difference: 8.029171448820094e-07

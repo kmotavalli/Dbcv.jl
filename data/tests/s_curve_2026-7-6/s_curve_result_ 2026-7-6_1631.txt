@@ -1,0 +1,5 @@
+DBCV Scores for /home/kappa/dev/dbcv/tests/../data/tests/s_curve_2026-7-6/s_curve_dataset_2026-7-6_1631.csv
+Python:  0.10894892711292806
+Julia:0.10894892711292804
+
+Difference: 1.3877787807814457e-17

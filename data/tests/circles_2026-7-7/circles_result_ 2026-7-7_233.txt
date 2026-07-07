@@ -1,0 +1,5 @@
+DBCV Scores for /home/kappa/dev/dbcv/tests/../data/tests/circles_2026-7-7/circles_dataset_2026-7-7_233.csv
+Python:  0.7490343190171268
+Julia:0.7490343190171268
+
+Difference: 0.0
