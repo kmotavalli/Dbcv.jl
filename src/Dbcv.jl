@@ -2,7 +2,6 @@ module Dbcv
 
     import Graphs, SimpleWeightedGraphs, Combinatorics, Distances, DataStructures
     using Base.Threads
-    import DelimitedFiles
 
     export dbcv
 
