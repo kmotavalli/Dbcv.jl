@@ -22,9 +22,9 @@ DBCV was proposed in:
 
 downloadable at: [epubs.siam.org/doi/10.1137/1.9781611973440.96](https://epubs.siam.org/doi/10.1137/1.9781611973440.96)
 
-It yelds adeguate results, compared to other indexes, also when evaluating data with nested clusters, concave shaped clusters, spirals, and data that is not clusterized in quadrants, while not being limited to these shapes. This is better explained in 
+It yelds adequate results, compared to other indexes, also when evaluating data with nested clusters, concave shaped clusters, spirals, and data that is not clusterized in quadrants, while not being limited to these shapes. This is better explained in 
 
->* Chicco D, Sabino G, Oneto L, Jurman G. 2025. The DBCV index is more
+>*Chicco D, Sabino G, Oneto L, Jurman G. 2025. The DBCV index is more
 informative than DCSI, CDbw, and VIASCKDE indices for unsupervised
 clustering internal assessment of concave-shaped and density-based
 clusters. PeerJ Computer Science 11:e3095*
