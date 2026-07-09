@@ -75,7 +75,7 @@ Here follows an example that combines csv reading and extracting only the releva
 ```julia
 import Dbcv, DelimitedFiles
 has_header::Integer = 0
-dataset::AbstractArray = []    Martin Ester, Hans-peter Kriegel, Jörg S, and Xiaowei Xu A density-based algorithm for discovering clusters in large spatial databases with noise. 1996.
+dataset::AbstractArray = []
 dataset_file::String, clustering_file::String = ARGS
 
 if has_header > 0
