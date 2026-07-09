@@ -20,13 +20,22 @@ It identifies clusters via density variations in relation to the between-cluster
 DBCV was proposed in:
 >*Density-Based Clustering Validation. Davoud Moulavi, Pablo A. Jaskowiak, Ricardo J. G. B. Campello, Arthur Zimek, and Jörg Sander. Proceedings of the 2014 SIAM International Conference on Data Mining (SDM). 2014, 839-847*
 
-With the paper available here: [epubs.siam.org](https://epubs.siam.org/doi/10.1137/1.9781611973440.96)
+With the paper available here: [epubs.siam.org/doi/10.1137/1.9781611973440.96](https://epubs.siam.org/doi/10.1137/1.9781611973440.96)
+
+It yelds adeguate results, compared to other indexes, also when evaluating data with nested clusters, concave shaped clusters, spirals, and data that is not clusterized in quadrants, while not being limited to these shapes. This is better explained in  
+
+>* Chicco D, Sabino G, Oneto L, Jurman G. 2025. The DBCV index is more
+informative than DCSI, CDbw, and VIASCKDE indices for unsupervised
+clustering internal assessment of concave-shaped and density-based
+clusters. PeerJ Computer Science 11:e3095*
+
+downloadable at [peerj.com/articles/cs-3095](https://peerj.com/articles/cs-3095/)
 
 ## Compatibility in results with other implementations
 
 This package for Julia tries to be similar in usage to [FelSiq/DBCV for Python](https://github.com/FelSiq/DBCV) supporting similar options, with difference better documented below, and more importantly, tries to match the calculated index value with the one derived by FelSiq/DBCV, when evaluating the same dataset and classification.
 
-In tests, the maximum divergence between Dbcv.jl and FelSiq/DBCV on the same input data is in the order of 1*e^-16, often 0.0
+In tests, the maximum divergence between Dbcv.jl and FelSiq/DBCV on the same input data is in the order of 1*e^-16^, often 0.0
 
 The git branch "with-optional-validation-tests" contains the Python and Julia testing infrastructure to compare the correctness of results against the existing FelSiq/DBCV Python implementation, while the main branch includes just a simple CI/CD test with no dependencies on Python. To evaluate the correctness of Dbcv.jl results, checkout the with-optional-validation-tests branch, enter the tests folder, and run ```test_all_datesets.py``` (uses julia/scipy library Kruskal MST) and/or ```test_all_datasets_prim.py``` (uses Dbcv.jl internal PRIM MST implementation and FelSiq/DBCV internal PRIM MST implementation, close to the original MATLAB DBCV code by Pablo A. Jaskowiak: [github.com/pajaskowiak/dbcv](https://github.com/pajaskowiak/dbcv)).
 
@@ -56,7 +65,7 @@ import Dbcv
 to simply specify an absolute path irrespective of the current working directory ```@__DIR__```, simply specify the full path without joinpath:
 
 ```julia
-push!(LOAD_PATH, "/path/to/dbcv/folder/src")
+push!(LOAD_PATH, "path_to_dbcv_src_subfolder")
 import Dbcv
 ```
 
@@ -130,5 +139,5 @@ The "type name" as written in Distances.jl docs must be provided as value of the
 ## Contacts
 You can contact the author via issues on [this github repository](https://github.com/kmotavalli/Dbcv.jl/issues) or by email at keivan@motavalli.me
 
-This software library has been developed as part of a university internship at the Università degli Studi di Milano-Bicocca ([www.unimib.it](https://www.unimib.it)) under the supervision of Davide Chicco (davide.chicco@unimib.it) of the Department of Informatics, Systems and Communication
+This software library has been developed as part of a university internship at the Università di Milano-Bicocca ([www.unimib.it](https://www.unimib.it)) under the supervision of [Davide Chicco](https://www.davidechicco.it) (davide.chicco@unimib.it) of the Department of Informatics, Systems and Communication
 
