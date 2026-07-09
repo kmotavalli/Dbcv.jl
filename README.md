@@ -17,6 +17,11 @@ Dbcv.jl is a Julia package implementing the DBCV metric, used to map the cluster
 
 It identifies clusters via density variations in relation to the between-clusters density.
 
+DBCV was proposed in:
+>*Density-Based Clustering Validation. Davoud Moulavi, Pablo A. Jaskowiak, Ricardo J. G. B. Campello, Arthur Zimek, and Jörg Sander. Proceedings of the 2014 SIAM International Conference on Data Mining (SDM). 2014, 839-847*
+
+With the paper available here: [epubs.siam.org](https://epubs.siam.org/doi/10.1137/1.9781611973440.96)
+
 This package for Julia tries to be similar in usage to [FelSiq/DBCV for Python](https://github.com/FelSiq/DBCV) supporting similar options, with difference better documented below, and more importantly, tries to match the calculated index value with the one derived by FelSiq/DBCV, when evaluating the same dataset and classification.
 
 In tests, the maximum divergence between Dbcv.jl and FelSiq/DBCV on the same input data is in the order of 1*e^-16, often 0.0
@@ -121,6 +126,7 @@ The "type name" as written in Distances.jl docs must be provided as value of the
 ```use_libgraphs_kruskal```, default to false. Whatever to use Krustak as the MST to get the minimum spanning tree of points in a cluster, as provided by the Julia Package Libgraphs, or the interal PRIM MST implementation, close to the original code in MATLAB by the Dbcv paper author. Note that while FelSiq/DBCV also provides an option in that regarding (internal prim or krustal via scipy), FelSiq/DBCV defaults to using Kruskal.
 
 ## Contacts
-You can contact the author via issues on [this github repository](https://github.com/kmotavalli/Dbcv.jl) or by email at keivan@motavalli.me
+You can contact the author via issues on [this github repository](https://github.com/kmotavalli/Dbcv.jl/issues) or by email at keivan@motavalli.me
+
 This software library has been developed as part of a university internship at the Università degli Studi di Milano-Bicocca ([www.unimib.it](https://www.unimib.it)) under the supervision of Davide Chicco (davide.chicco@unimib.it) of the Department of Informatics, Systems and Communication
 
