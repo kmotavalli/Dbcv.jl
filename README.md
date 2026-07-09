@@ -44,7 +44,7 @@ One notable difference is in the definition of a custom threshold distance (defa
 
 The validation suite in python+julia runs on Windows, Mac OS X, GNU/Linux and FreeBSD, and possibly other *nix systems provided the above mentioned python dependecies are available.
 
-Beware that by default FelSiq/DBCV uses Kruskal via Scipy, while we default to using the internal PRIM implementation for closeness with the original Dbcv paper implementation. Results between FelSiq/DBCV and Dbcv.jl must be compared between the same MST algorithm. Different Minimum Spanning Tree algorithms, sometimes even different implementations ordering results differently, will largely impact the calculated Dbcv index.
+Beware that by default FelSiq/DBCV uses Kruskal via Scipy, while we default to using the internal PRIM implementation for closeness with the [original Dbcv paper implementation](https://github.com/pajaskowiak/dbcv). Results between FelSiq/DBCV and Dbcv.jl must be compared between the same MST algorithm. Different Minimum Spanning Tree algorithms, sometimes even different implementations ordering results differently, will largely impact the calculated Dbcv index.
 
 ## Installation instructions
 
@@ -134,7 +134,7 @@ The "type name" as written in Distances.jl docs must be provided as value of the
 
 ```bits_of_precision```, defaults to 512 for compatibility with FelSiq/DBCV. It sets the BigFloat type to used a fixed precision instead of dynamically adjusting the precision at runtime, which is otherwise the Julia behaviour. Chosing a bit size compatible with native cpu floating point lenght and instructions will problably speed up execution, reducing the need to split an arithmetic operation over multiple instructions and cpu clock cycle.
 
-```use_libgraphs_kruskal```, default to false. Whatever to use Krustak as the MST to get the minimum spanning tree of points in a cluster, as provided by the Julia Package Libgraphs, or the interal PRIM MST implementation, close to the original code in MATLAB by the Dbcv paper author. Note that while FelSiq/DBCV also provides an option in that regarding (internal prim or krustal via scipy), FelSiq/DBCV defaults to using Kruskal.
+```use_libgraphs_kruskal```, default to false. Whatever to use Krustak as the MST to get the minimum spanning tree of points in a cluster, as provided by the Julia Package Libgraphs, or the interal PRIM MST implementation, close to the [original code in MATLAB by the Dbcv paper author](https://github.com/pajaskowiak/dbcv). Note that while FelSiq/DBCV also provides an option in that regarding (internal prim or krustal via scipy), FelSiq/DBCV defaults to using Kruskal.
 
 ## Contacts
 You can contact the author via issues on [this github repository](https://github.com/kmotavalli/Dbcv.jl/issues) or by email at keivan@motavalli.me
