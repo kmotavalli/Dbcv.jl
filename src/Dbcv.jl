@@ -46,14 +46,16 @@ module Dbcv
 
     function pair_to_pair_distances(X::AbstractArray;
         metric::AbstractString="SqEuclidean",
-        threshold::BigFloat=1e-9, dup_check::Bool)::AbstractMatrix
+        threshold::BigFloat=1e-9, dup_check::Bool, felsiq_bugforbug::Bool)::AbstractMatrix
 
         x_size::Integer = size(X, 1)
         if x_size <= 1
             return nothing
         end
-
-        tolerance::BigFloat = threshold / 1000
+        tolerance::BigFloat = 1e-12
+        if !felsiq_bugforbug
+            tolerance = threshold / 1000
+        end
         distances = Matrix{BigFloat}(undef, x_size, x_size)
         metric_instance = try
         	metric_sym = Symbol(metric)
@@ -305,7 +307,7 @@ module Dbcv
         num_clusters::Integer = length(cluster_ids)
         cluster_sizes =  [count(==(id), y) for id in cluster_ids]
 
-        distances::AbstractArray{BigFloat} = pair_to_pair_distances(X, metric=metric, threshold=sep_threshold, dup_check=check_duplicates)
+        distances::AbstractArray{BigFloat} = pair_to_pair_distances(X, metric=metric, threshold=sep_threshold, dup_check=check_duplicates, felsiq_bugforbug)
 
         # DSC: 'Density Sparseness of a Cluster' init
         dscs = zeros(size(cluster_ids))
