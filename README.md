@@ -1,4 +1,4 @@
-# Dbcv
+# DBCV
 
 <!-- Title -->
 <h1 align="center">
@@ -7,28 +7,28 @@ Dbcv.jl
 
 <!-- description -->
 <p align="center">
-  <strong>Density-Based Clustering Validation index implementation</strong>
+  <strong>Density-Based Clustering Validation index implementation for Julia</strong>
 </p>
 
 
 [![Build Status](https://github.com/kmotavalli/Dbcv.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/kmotavalli/Dbcv.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
-Dbcv.jl is a Julia package implementing the DBCV metric, used to map the clustering of a dataset (as obtained, for exapmle, via the DBSCAN clustering algorithm) to an index between -1, for poorly formed clusters or wrong points-to-cluster assignment, to +1, if presented with an obtimal clusterization of the dataset.
+Dbcv.jl is a Julia package implementing the DBCV metric, used to map the clustering of a dataset (as obtained, for example, via the DBSCAN clustering algorithm) to an index between -1, for poorly formed clusters or wrong a points-to-cluster assignment, to +1, if presented with an obtimal clusterization of the dataset.
 
 It identifies clusters via density variations in relation to the between-clusters density.
 
-This package for Julia tries to be similar in usage to felsiq-dbcv for Python (https://github.com/FelSiq/DBCV) supporting similar options, with difference better documented below, and more importantly, tries to match the calculated index value with the one derived by felsiq-dbcv, when evaluating the same dataset and classification.
+This package for Julia tries to be similar in usage to [FelSiq/DBCV for Python](https://github.com/FelSiq/DBCV) supporting similar options, with difference better documented below, and more importantly, tries to match the calculated index value with the one derived by FelSiq/DBCV, when evaluating the same dataset and classification.
 
-In tests, the maximum divergence between Dbcv.jl and felsiq/dbcv on the same input data is in the order of 1*e^-16, often 0.0
+In tests, the maximum divergence between Dbcv.jl and FelSiq/DBCV on the same input data is in the order of 1*e^-16, often 0.0
 
-The git branch "with-optional-validation-tests" contains the python and julia testing infrastructure to compare the correctness of results, while the main branch includes just a simple CI/CD test with no dependencies on python. To evaluate the correctness of Dbcv.jl results, checkout the with-optional-validation-tests branch, enter the tests folder, and run ```test_all_datesets.py``` (uses internal julia/scipy Kruskal MST) and/or ```test_all_datasets_prim.py``` (uses Dbcv.jl internal PRIM MST implementation and felsiq/dbcv internal PRIM MST implementation, close to the original Matlab dbcv code by Pablo A. Jaskowiak: https://github.com/pajaskowiak/dbcv).
+The git branch "with-optional-validation-tests" contains the Python and Julia testing infrastructure to compare the correctness of results against the existing FelSiq/DBCV Python implementation, while the main branch includes just a simple CI/CD test with no dependencies on Python. To evaluate the correctness of Dbcv.jl results, checkout the with-optional-validation-tests branch, enter the tests folder, and run ```test_all_datesets.py``` (uses julia/scipy library Kruskal MST) and/or ```test_all_datasets_prim.py``` (uses Dbcv.jl internal PRIM MST implementation and FelSiq/DBCV internal PRIM MST implementation, close to the original MATLAB DBCV code by Pablo A. Jaskowiak: [github.com/pajaskowiak/dbcv](https://github.com/pajaskowiak/dbcv)).
 
 Python modules sklearn (or scikit-learn), numpy, scipy and mpmath are required to be installed in order to be able to run the validation tests in that branch.
-One notable difference is in the definition of a custom threshold distance (defaulting to e^-9) below which points are considered duplicates: this threshold is added back to the Validity Validation Score. In Felsiq, this is done adding a fixed quantity (e^-12) irrespective of the eventual user set threshold. In Dbcv.jl this values is calculated based on the user set threshold at runtime, which appairs to be more a more correct  behaviour to the author, creating divergences in results with felsiq/dbcv in the case of a custom set threshold. An optional parameter felsiq_bugforbug can be set to true to reintroduce the broken behaviour in Dbcv.jl for bug for bug compatible results in that case.
+One notable difference is in the definition of a custom threshold distance (defaulting to e^-9) below which points are considered duplicates: this threshold is added back to the Validity Validation Score. In Felsiq, this is done adding a fixed quantity (e^-12) irrespective of the eventual user set threshold. In Dbcv.jl this values is calculated based on the user set threshold at runtime, which appairs to be more a more correct  behaviour to the author, creating divergences in results with FelSiq/DBCV in the case of a custom set threshold. An optional parameter felsiq_bugforbug can be set to true to reintroduce the broken behaviour in Dbcv.jl for bug for bug compatible results in that case.
 
 The validation suite in python+julia runs on Windows, Mac OS X, GNU/Linux and FreeBSD, and possibly other *nix systems provided the above mentioned python dependecies are available.
 
-Beware that by default felsiq/dbcv uses Kruskal via Scipy, while we default to using the internal PRIM implementation for closeness with the original Dbcv paper implementation. Results between felsiq/dbcv and Dbcv.jl must be compared between the same MST algorithm. Different Minimum Spanning Tree algorithms, sometimes even different implementations ordering results differently, will largely impact the calculated Dbcv index.
+Beware that by default FelSiq/DBCV uses Kruskal via Scipy, while we default to using the internal PRIM implementation for closeness with the original Dbcv paper implementation. Results between FelSiq/DBCV and Dbcv.jl must be compared between the same MST algorithm. Different Minimum Spanning Tree algorithms, sometimes even different implementations ordering results differently, will largely impact the calculated Dbcv index.
 
 ## Installation instructions
 
@@ -114,8 +114,13 @@ The "type name" as written in Distances.jl docs must be provided as value of the
 
 ```sep_threshold```, the minimum separation distance between points below which to consider points duplicates if check_duplicates is set to true (its default). This value is also indirectly used to clamp (filter) matrices removing smaller values and gets added back, 3 orders of magnitude smaller, to the final result in the step calculating the VCS (Validity Validation Score). Defaults to 1*e^-9.
 
-```felsiq_bugforbug``` felsiq/dbcv does add back a fixed quantity (1E^-12) in the VCS score, but this does not change when the user sets a custom sep_threshold. We default to deriving that value at runtime based on the user set sep_threshold for correctness, but also implement felsiq/dbcv behaviour (always add 1E^-12) when the optional named parameter felsiq_bugforbug is set to true. defaults to false.
+```felsiq_bugforbug``` FelSiq/DBCV does add back a fixed quantity (1E^-12) in the VCS score, but this does not change when the user sets a custom sep_threshold. We default to deriving that value at runtime based on the user set sep_threshold for correctness, but also implement FelSiq/DBCV behaviour (always add 1E^-12) when the optional named parameter felsiq_bugforbug is set to true. defaults to false.
 
-```bits_of_precision```, defaults to 512 for compatibility with felsiq-dbcv. It sets the BigFloat type to used a fixed precision instead of dynamically adjusting the precision at runtime, which is otherwise the Julia behaviour. Chosing a bit size compatible with native cpu floating point lenght and instructions will problably speed up execution, reducing the need to split an arithmetic operation over multiple instructions and cpu clock cycle.
+```bits_of_precision```, defaults to 512 for compatibility with FelSiq/DBCV. It sets the BigFloat type to used a fixed precision instead of dynamically adjusting the precision at runtime, which is otherwise the Julia behaviour. Chosing a bit size compatible with native cpu floating point lenght and instructions will problably speed up execution, reducing the need to split an arithmetic operation over multiple instructions and cpu clock cycle.
 
-```use_libgraphs_kruskal```, default to false. Whatever to use Krustak as the MST to get the minimum spanning tree of points in a cluster, as provided by the Julia Package Libgraphs, or the interal PRIM MST implementation, close to the original code in Matlab by the Dbcv paper author. Note that while felsiq/dbcv also provides an option in that regarding (internal prim or krustal via scipy), felsiq/dbcv defaults to using Kruskal.
+```use_libgraphs_kruskal```, default to false. Whatever to use Krustak as the MST to get the minimum spanning tree of points in a cluster, as provided by the Julia Package Libgraphs, or the interal PRIM MST implementation, close to the original code in MATLAB by the Dbcv paper author. Note that while FelSiq/DBCV also provides an option in that regarding (internal prim or krustal via scipy), FelSiq/DBCV defaults to using Kruskal.
+
+## Contacts
+You can contact the author via issues on [this github repository](https://github.com/kmotavalli/Dbcv.jl) or by email at keivan@motavalli.me
+This software library has been developed as part of a university internship at the Università degli Studi di Milano-Bicocca ([www.unimib.it](https://www.unimib.it)) under the supervision of Davide Chicco (davide.chicco@unimib.it) of the Department of Informatics, Systems and Communication
+
