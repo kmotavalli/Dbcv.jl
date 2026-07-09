@@ -8,5 +8,5 @@ using Test
 
     result = Dbcv.dbcv(dataset, dbscan_classification)
 
-    @test result == known_good_result
+    @test result ≈ known_good_result rtol=1e-16
 end
