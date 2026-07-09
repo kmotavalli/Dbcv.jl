@@ -307,7 +307,7 @@ module Dbcv
         num_clusters::Integer = length(cluster_ids)
         cluster_sizes =  [count(==(id), y) for id in cluster_ids]
 
-        distances::AbstractArray{BigFloat} = pair_to_pair_distances(X, metric=metric, threshold=sep_threshold, dup_check=check_duplicates, felsiq_bugforbug)
+        distances::AbstractArray{BigFloat} = pair_to_pair_distances(X, metric=metric, threshold=sep_threshold, dup_check=check_duplicates, felsiq_bugforbug=felsiq_bugforbug)
 
         # DSC: 'Density Sparseness of a Cluster' init
         dscs = zeros(size(cluster_ids))
