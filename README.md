@@ -22,6 +22,8 @@ DBCV was proposed in:
 
 With the paper available here: [epubs.siam.org](https://epubs.siam.org/doi/10.1137/1.9781611973440.96)
 
+## Compatibility in results with other implementations
+
 This package for Julia tries to be similar in usage to [FelSiq/DBCV for Python](https://github.com/FelSiq/DBCV) supporting similar options, with difference better documented below, and more importantly, tries to match the calculated index value with the one derived by FelSiq/DBCV, when evaluating the same dataset and classification.
 
 In tests, the maximum divergence between Dbcv.jl and FelSiq/DBCV on the same input data is in the order of 1*e^-16, often 0.0
