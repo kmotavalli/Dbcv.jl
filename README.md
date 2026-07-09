@@ -35,7 +35,7 @@ downloadable at [peerj.com/articles/cs-3095](https://peerj.com/articles/cs-3095/
 
 This package for Julia tries to be similar in usage to [FelSiq/DBCV for Python](https://github.com/FelSiq/DBCV) supporting similar options, with difference better documented below, and more importantly, tries to match the calculated index value with the one derived by FelSiq/DBCV, when evaluating the same dataset and classification.
 
-In tests, the maximum divergence between Dbcv.jl and FelSiq/DBCV on the same input data is in the order of 1*e^-16^, often 0.0
+In tests, the maximum divergence between Dbcv.jl and FelSiq/DBCV on the same input data is in the order of 1*e^<sup>-16</sup>, often 0.0
 
 The git branch "with-optional-validation-tests" contains the Python and Julia testing infrastructure to compare the correctness of results against the existing FelSiq/DBCV Python implementation, while the main branch includes just a simple CI/CD test with no dependencies on Python. To evaluate the correctness of Dbcv.jl results, checkout the with-optional-validation-tests branch, enter the tests folder, and run ```test_all_datesets.py``` (uses julia/scipy library Kruskal MST) and/or ```test_all_datasets_prim.py``` (uses Dbcv.jl internal PRIM MST implementation and FelSiq/DBCV internal PRIM MST implementation, close to the original MATLAB DBCV code by Pablo A. Jaskowiak: [github.com/pajaskowiak/dbcv](https://github.com/pajaskowiak/dbcv)).
 
