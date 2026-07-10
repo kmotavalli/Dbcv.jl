@@ -20,7 +20,7 @@ It identifies clusters via density variations in relation to the between-cluster
 DBCV was proposed in:
 >*Density-Based Clustering Validation. Davoud Moulavi, Pablo A. Jaskowiak, Ricardo J. G. B. Campello, Arthur Zimek, and Jörg Sander. Proceedings of the 2014 SIAM International Conference on Data Mining (SDM). 2014, 839-847*
 
-downloadable at: [epubs.siam.org/doi/10.1137/1.9781611973440.96](https://epubs.siam.org/doi/10.1137/1.9781611973440.96)
+downloadable at: [doi.org/10.1137/1.9781611973440.96]( https://doi.org/10.1137/1.9781611973440.96)
 
 It yelds adequate results, compared to other indexes, also when evaluating data with nested clusters, concave shaped clusters, spirals, and data that is not clusterized in quadrants, while not being limited to these shapes. This is better explained in 
 
@@ -29,7 +29,7 @@ informative than DCSI, CDbw, and VIASCKDE indices for unsupervised
 clustering internal assessment of concave-shaped and density-based
 clusters. PeerJ Computer Science 11:e3095*
 
-downloadable at: [peerj.com/articles/cs-3095](https://peerj.com/articles/cs-3095/)
+downloadable at: [doi.org/10.7717/peerj-cs.3095](https://doi.org/10.7717/peerj-cs.3095)
 
 ## Compatibility in results with other implementations
 
