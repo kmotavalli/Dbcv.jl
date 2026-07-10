@@ -1,4 +1,4 @@
-module Dbcv
+module DensityBasedClusteringValidation 
 
     import Graphs, SimpleWeightedGraphs, Combinatorics, Distances, DataStructures
     using Base.Threads
