@@ -2,7 +2,7 @@
 
 <!-- Title -->
 <h1 align="center">
-Dbcv.jl
+DensityBasedClusteringValidation.jl
 </h1>
 
 <!-- description -->
@@ -11,9 +11,9 @@ Dbcv.jl
 </p>
 
 
-[![Build Status](https://github.com/kmotavalli/Dbcv.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/kmotavalli/Dbcv.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Build Status](https://github.com/kmotavalli/DensityBasedClusteringValidation.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/kmotavalli/DensityBasedClusteringValidation.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
-Dbcv.jl is a Julia package implementing the DBCV metric, used to map the clustering of a dataset (as obtained, for example, via the DBSCAN clustering algorithm) to an index between -1, for poorly formed clusters or wrong a points-to-cluster assignment, to +1, if presented with an obtimal clusterization of the dataset.
+DensityBasedClusteringValidation.jl is a Julia package implementing the DBCV metric, used to map the clustering of a dataset (as obtained, for example, via the DBSCAN clustering algorithm) to an index between -1, for poorly formed clusters or wrong a points-to-cluster assignment, to +1, if presented with an obtimal clusterization of the dataset.
 
 It identifies clusters via density variations in relation to the between-clusters density.
 
@@ -52,44 +52,44 @@ Once the packages get, hopefully, registred in Julia Packages, you will be able 
 ```julia
 julia> using Pkg
 
-julia> Pkg.add("Dbcv")
+julia> Pkg.add("DensityBasedClusteringValidation")
 ```
 
-If not using the Julia package registry or testing this code before its submission request, clone the repository and reference src/Dbcv.jl inside your Julia code with its relative or absolute path, like this in the case the src directory is parent of the one containing your own julia sources:
+If not using the Julia package registry or testing this code before its submission request, clone the repository and reference src/DensityBasedClusteringValidation.jl inside your Julia code with its relative or absolute path, like this in the case the src directory is parent of the one containing your own julia sources:
 
 ```julia
 push!(LOAD_PATH, joinpath(@__DIR__, "..", "src"))
-import Dbcv
+import DensityBasedClusteringValidation 
 ```
 
 to simply specify an absolute path irrespective of the current working directory ```@__DIR__```, simply specify the full path without joinpath:
 
 ```julia
 push!(LOAD_PATH, "path_to_dbcv_src_subfolder")
-import Dbcv
+import DensityBasedClusteringValidation 
 ```
 
 
 ## Usage instructions
 
-import Dbcv in your Julia sources via
+import DensityBasedClusteringValidation in your Julia sources via
 
 ```julia
-import Dbcv
+import DensityBasedClusteringValidation 
 ```
 
-then invoke Dbcv.dbcv passing it a dataset and a classification in clusters of that dataset.
+then invoke DensityBasedClusteringValidation.dbcv passing it a dataset and a classification in clusters of that dataset.
 
 ```julia
-result = Dbcv.dbcv(dataset, classification)
+result = DensityBasedClusteringValidation.dbcv(dataset, classification)
 ```
 
-the two must already be in memory (bound to a variable). The classification vector must only include the classification of the points, in the same order they appear in the dataset, to a cluster id. The dataset must not be repeated in the classification variable. If it is, you can extract with a view from your classification matrix, containing only the column with the cluster ids for the original data. If files have to be read first, eg, from csv files, you have to read them into memory before calling Dbcv.dbcv, for example via the Julia package DelimitedFiles.
+the two must already be in memory (bound to a variable). The classification vector must only include the classification of the points, in the same order they appear in the dataset, to a cluster id. The dataset must not be repeated in the classification variable. If it is, you can extract a view from your classification matrix, containing only the column with the cluster ids for the original data. If files have to be read first, eg, from csv files, you have to read them into memory before calling DensityBasedClusteringValidation.dbcv, for example via the Julia package DelimitedFiles.
 
 Here follows an example that combines csv reading and extracting only the relevant column (the last one) from the classification file, then chosing to use Kruskal instead of the default PRIM MST:
 
 ```julia
-import Dbcv, DelimitedFiles
+import DensityBasedClusteringValidation, DelimitedFiles
 has_header::Integer = 0
 dataset::AbstractArray = []
 dataset_file::String, clustering_file::String = ARGS
@@ -102,12 +102,12 @@ end
 
 clustering::AbstractArray = DelimitedFiles.readdlm(clustering_file, ',', Int)
 
-result::Real = Dbcv.dbcv(dataset, vec(clustering[:, 1]), use_libgraphs_kruskal=true)
+result::Real = DensityBasedClusteringValidation.dbcv(dataset, vec(clustering[:, 1]), use_libgraphs_kruskal=true)
 
 print(result)
 ```
 
-Note that the code of Dbcv.jl is multithreaded, particurarly benefiting from classifications to a large number of clusters (each cluster gets evalued parallely on a separate thread), even if this is not the only implemented parallelism. 
+Note that the code of DensityBasedClusteringValidation.jl is multithreaded, particurarly benefiting from classifications to a large number of clusters (each cluster gets evalued parallely on a separate thread), even if this is not the only implemented parallelism. 
 To benefit from multithreading, you must start Julia specifiying the number of available threads to the interpreter/VM, like
 
 ```
@@ -119,7 +119,7 @@ or set the environment variable ```JULIA_NUM_THREADS``` on your system.
 
 ## Supported options
 
-Optional named parameters that can be passed to Dbcv.dbcv() are:
+Optional named parameters that can be passed to DensityBasedClusteringValidation.dbcv() are:
 
 ```check_duplicates```, defaults to true: whatever to check the dataset for duplicate points (with pairwise distances below the set sep_threshold). Dbcv exits with error if duplicate points are found.
 
@@ -137,7 +137,7 @@ The "type name" as written in Distances.jl docs must be provided as value of the
 ```use_libgraphs_kruskal```, default to false. Whatever to use Krustak as the MST to get the minimum spanning tree of points in a cluster, as provided by the Julia Package Libgraphs, or the interal PRIM MST implementation, close to the [original code in MATLAB by the Dbcv paper author](https://github.com/pajaskowiak/dbcv). Note that while FelSiq/DBCV also provides an option in that regarding (internal prim or krustal via scipy), FelSiq/DBCV defaults to using Kruskal.
 
 ## Contacts
-You can contact the author via issues on [this github repository](https://github.com/kmotavalli/Dbcv.jl/issues) or by email at keivan@motavalli.me
+You can contact the author via issues on [this github repository](https://github.com/kmotavalli/DensityBasedClusteringValidation.jl/issues) or by email at keivan@motavalli.me
 
 This software library has been developed as part of a university internship at the Università di Milano-Bicocca ([www.unimib.it](https://www.unimib.it)) under the supervision of [Davide Chicco](https://www.davidechicco.it) (davide.chicco@unimib.it) of the Department of Informatics, Systems and Communication
 
