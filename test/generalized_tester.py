@@ -4,7 +4,7 @@ import time, sys, os, subprocess, argparse, multiprocessing
 from inspect import getsourcefile
 import numpy as np
 
-#richiede installazione sklearn e numpy
+#requires installing scipy, scikit-learn and numpy
 import felsiq_dbcv as dbcv #felsiq implementation
 from sklearn import cluster, datasets, preprocessing
 

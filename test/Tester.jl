@@ -1,5 +1,5 @@
 push!(LOAD_PATH, joinpath(@__DIR__, "..", "src"))
-import Dbcv, DelimitedFiles
+import DensityBasedClusteringValidation, DelimitedFiles
 
 has_header::Integer = 0
 dataset::AbstractArray = []
@@ -17,6 +17,6 @@ end
 
 clustering::AbstractArray = DelimitedFiles.readdlm(clustering_file, ',', Int)
 
-result::Real = Dbcv.dbcv(dataset, vec(clustering[:, 1]), use_libgraphs_kruskal=true)
+result::Real = DensityBasedClusteringValidation.dbcv(dataset, vec(clustering[:, 1]), use_libgraphs_kruskal=true)
 
 print(result)
